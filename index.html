@@ -133,13 +133,19 @@ button, input, textarea {
   pointer-events: none;
   z-index: 9999;
   box-shadow: 0 0 0 1.5px rgba(0, 0, 0, 0.35);
-  transition: width 0.3s var(--ease-out-expo),
-              height 0.3s var(--ease-out-expo),
+  transition: width 0.35s var(--ease-out-expo),
+              height 0.35s var(--ease-out-expo),
+              border-radius 0.35s var(--ease-out-expo),
               background 0.3s ease,
               box-shadow 0.3s ease,
+              padding 0.3s ease,
               opacity 0.3s ease;
   transform: translate(-50%, -50%);
   will-change: transform;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
 }
 
 .cursor.hover {
@@ -147,6 +153,33 @@ button, input, textarea {
   height: 36px;
   background: rgba(12, 12, 12, 0.88);
   box-shadow: 0 0 0 1.5px var(--lime);
+  opacity: 1;
+}
+
+.cursor.nav-hover {
+  width: 72px;
+  height: 26px;
+  border-radius: 13px;
+  background: var(--lime);
+  box-shadow: none;
+  padding: 0 10px;
+}
+
+.cursor-label {
+  font-family: var(--font-heading);
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--dark);
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  pointer-events: none;
+  line-height: 1;
+}
+
+.cursor.nav-hover .cursor-label {
   opacity: 1;
 }
 
@@ -1511,7 +1544,7 @@ button, input, textarea {
 </div>
 
 <!-- Custom cursor -->
-<div class="cursor" aria-hidden="true"></div>
+<div class="cursor" aria-hidden="true"><span class="cursor-label"></span></div>
 
 <!-- Header -->
 <header class="header" role="banner">
@@ -1887,16 +1920,33 @@ button, input, textarea {
   }
   animate();
 
-  var interactiveElements = 'a, button, input, textarea, .service-card, .project-card, .cta-btn, .cta-btn-large, .submit-btn, .value-pill';
+  var cursorLabel = cursor.querySelector('.cursor-label');
+  var navLinks = document.querySelectorAll('.header-nav a, .mobile-nav a');
+  var otherInteractive = 'button, input, textarea, .service-card, .project-card, .cta-btn, .cta-btn-large, .submit-btn, .value-pill, .footer-nav a, .project-link, .header-logo';
 
+  // Nav links: pill cursor with destination label
+  navLinks.forEach(function(link) {
+    link.addEventListener('mouseenter', function() {
+      cursor.classList.remove('hover');
+      cursor.classList.add('nav-hover');
+      if (cursorLabel) cursorLabel.textContent = this.textContent.trim();
+    });
+    link.addEventListener('mouseleave', function() {
+      cursor.classList.remove('nav-hover');
+      if (cursorLabel) cursorLabel.textContent = '';
+    });
+  });
+
+  // Other interactive elements: dark circle
   document.addEventListener('mouseover', function(e) {
-    if (e.target.closest(interactiveElements)) {
+    if (e.target.closest(otherInteractive) && !e.target.closest('.header-nav, .mobile-nav')) {
       cursor.classList.add('hover');
+      cursor.classList.remove('nav-hover');
     }
   });
 
   document.addEventListener('mouseout', function(e) {
-    if (e.target.closest(interactiveElements)) {
+    if (e.target.closest(otherInteractive)) {
       cursor.classList.remove('hover');
     }
   });
