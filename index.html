@@ -811,19 +811,7 @@ button, input, textarea {
 }
 
 .process-line {
-  position: absolute;
-  top: 50px;
-  left: 5%;
-  width: 90%;
-  height: 1px;
-  background: rgba(212, 255, 0, 0.15);
-}
-
-.process-line-fill {
-  height: 100%;
-  width: 0%;
-  background: var(--lime);
-  transition: width 0.1s linear;
+  display: none;
 }
 
 .process-step {
@@ -1648,9 +1636,6 @@ button, input, textarea {
     <h2 class="section-heading section-heading-dark">Cómo trabajamos</h2>
   </div>
   <div class="process-timeline reveal">
-    <div class="process-line" aria-hidden="true">
-      <div class="process-line-fill"></div>
-    </div>
     <div class="process-step reveal-child" style="transition-delay: 0s">
       <span class="process-number">01</span>
       <h3 class="process-title">Discovery</h3>
@@ -2081,31 +2066,6 @@ button, input, textarea {
   });
 })();
 
-/* ============================================
-   PROCESS LINE FILL (scroll-driven)
-   ============================================ */
-(function() {
-  var processSection = document.querySelector('#proceso');
-  var lineFill = document.querySelector('.process-line-fill');
-  if (!processSection || !lineFill) return;
-
-  function updateFill() {
-    var rect = processSection.getBoundingClientRect();
-    var viewH = window.innerHeight;
-    var progress = Math.min(Math.max((viewH - rect.top) / (rect.height + viewH * 0.5), 0), 1);
-
-    if (window.innerWidth <= 968) {
-      lineFill.style.height = (progress * 100) + '%';
-      lineFill.style.width = '100%';
-    } else {
-      lineFill.style.width = (progress * 100) + '%';
-      lineFill.style.height = '100%';
-    }
-  }
-
-  window.addEventListener('scroll', updateFill, { passive: true });
-  updateFill();
-})();
 
 /* ============================================
    CTA LINE ANIMATION
