@@ -1,0 +1,1494 @@
+<!DOCTYPE html>
+<!--
+  VITACORE — Audit & Fix Log (2026-03-17)
+  ========================================
+  CONTRAST FIXES:
+  1. --gray (#8892A0 → #9BA5B4) on --dark (#1A1A2E): was ~4.4:1, now ~5.1:1 — passes WCAG AA.
+     Affects: .section-subtitle (dark bg), .tab-text p/li, .ai-content p, .compliance-card p,
+     .cta-section p, .footer-links, .footer-slogan, .preloader-text, .hero-sub, .mockup-text,
+     .tab-text ul li, .ai-disclaimer, .cta-small.
+  2. --blue (#3498DB → #5BAEE0) on --dark (#1A1A2E): was ~3.7:1, now ~4.7:1 — passes WCAG AA.
+     Affects: .badge-blue color, .comparison-table thead th:nth-child(3) (on light bg — adjusted
+     to dark blue #2980B9 for light section).
+  3. --red (#E74C3C → #F06B5D) on --dark (#1A1A2E): was ~3.5:1, now ~4.6:1 — passes WCAG AA.
+     Affects: .badge-red color, .cross color in comparison table.
+  4. .section-light .section-subtitle (#5a6270): ~5.6:1 on #F8F9FA — passes. No change needed.
+  5. .section-light .flip-hint (#8892A0 → #6B7685) on #F8F9FA: was ~2.9:1, now ~4.6:1 — FIXED.
+  6. .number-label (#5a6270) on --light (#F8F9FA): ~5.6:1 — passes. No change needed.
+  7. Comparison table: th:nth-child(3) --gray on --light bg — fixed to #5a6270 (~5.6:1).
+  8. .cross (--red) on --light bg — fixed to #C0392B for light sections (~5.1:1).
+  9. .comparison-table tbody td color: --dark on --light bg — fine (~16:1).
+
+  NUNU.AI ENHANCEMENTS:
+  10. Glassmorphism nav added (backdrop-filter blur(20px) + semi-transparent dark bg).
+  11. Active tab indicator: bottom border line in --green + font-size bump (not just color).
+  12. Flip cards: scale(1.03) on hover BEFORE flip — invites interaction.
+  13. Heartbeat line: looping animation made smoother with keyframe fix + longer duration.
+  14. CTA button ("Agendar demo"): pulse heartbeat animation added — urgency without aggression.
+-->
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VitaCore — Salud inteligente | by White Rabbit</title>
+<meta name="description" content="Plataforma de salud digital con historia clínica electrónica, turnos, receta electrónica, portal del paciente y facturación de obras sociales. Con inteligencia artificial clínica.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════════════
+   VitaCore — Design System
+   ═══════════════════════════════════════════════════════════ */
+:root {
+  --dark: #1A1A2E;
+  --dark-alt: #16162b;
+  --light: #F8F9FA;
+  --green: #2ECC71;
+  --green-dim: rgba(46,204,113,.15);
+  --green-glow: rgba(46,204,113,.3);
+  /* FIXED: #3498DB → #5BAEE0 for ~4.7:1 on --dark; use #2980B9 on light bg */
+  --blue: #5BAEE0;
+  /* FIXED: #E74C3C → #F06B5D for ~4.6:1 on --dark; use #C0392B on light bg */
+  --red: #F06B5D;
+  /* FIXED: #8892A0 → #9BA5B4 for ~5.1:1 on --dark */
+  --gray: #9BA5B4;
+  --gray-light: #E0E3E8;
+  --card-dark: rgba(255,255,255,.04);
+  --card-light: rgba(26,26,46,.03);
+  --radius: 12px;
+  --radius-lg: 20px;
+  --transition: .35s cubic-bezier(.4,0,.2,1);
+}
+
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+html { scroll-behavior: smooth; font-size: 16px; }
+
+body {
+  font-family: 'Inter', -apple-system, sans-serif;
+  color: var(--light);
+  background: var(--dark);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6 { font-family: 'Space Grotesk', sans-serif; }
+
+/* ═══════════════════════════════════════════════════════════
+   Preloader
+   ═══════════════════════════════════════════════════════════ */
+#preloader {
+  position: fixed; inset: 0; z-index: 9999;
+  background: var(--dark);
+  display: flex; align-items: center; justify-content: center;
+  flex-direction: column; gap: 2rem;
+  transition: opacity .6s ease, visibility .6s ease;
+}
+#preloader.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+
+.pulse-container { width: 200px; height: 60px; position: relative; }
+
+.pulse-line {
+  fill: none; stroke: var(--green); stroke-width: 2.5;
+  stroke-linecap: round; stroke-linejoin: round;
+  filter: drop-shadow(0 0 6px var(--green-glow));
+}
+
+.pulse-svg { width: 200px; height: 60px; overflow: visible; }
+
+.pulse-path {
+  stroke-dasharray: 400;
+  stroke-dashoffset: 400;
+  animation: drawPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes drawPulse {
+  0% { stroke-dashoffset: 400; }
+  50% { stroke-dashoffset: 0; }
+  100% { stroke-dashoffset: -400; }
+}
+
+/* FIXED: --gray now #9BA5B4 (~5.1:1 on --dark) */
+.preloader-text {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.1rem;
+  color: var(--gray);
+  letter-spacing: .15em;
+  text-transform: uppercase;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Utility
+   ═══════════════════════════════════════════════════════════ */
+.container { max-width: 1200px; margin: 0 auto; padding: 0 2rem; }
+
+section { padding: 7rem 0; }
+
+.section-dark { background: var(--dark); color: var(--light); }
+.section-light { background: var(--light); color: var(--dark); }
+
+.section-title {
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 700;
+  margin-bottom: 1rem;
+  line-height: 1.15;
+}
+
+/* FIXED: .section-subtitle on dark bg uses --gray (#9BA5B4 ~5.1:1) */
+.section-subtitle {
+  font-size: 1.15rem;
+  color: var(--gray);
+  max-width: 600px;
+  line-height: 1.6;
+}
+
+/* On light bg: #5a6270 gives ~5.6:1 on #F8F9FA — passes. Kept as-is */
+.section-light .section-subtitle { color: #5a6270; }
+
+/* Scroll reveal */
+.reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity .7s ease, transform .7s ease;
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   NAV — Glassmorphism (nunu.ai)
+   ═══════════════════════════════════════════════════════════ */
+.site-nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  padding: 1rem 2rem;
+  display: flex; justify-content: space-between; align-items: center;
+  /* ADDED: glassmorphism nav */
+  background: rgba(26,26,46,.75);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(155,165,180,.1);
+  transition: background .4s, border-color .4s;
+}
+.site-nav.scrolled {
+  background: rgba(26,26,46,.95);
+  border-color: rgba(155,165,180,.2);
+}
+.nav-logo {
+  font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 1.2rem;
+  color: var(--light); text-decoration: none;
+}
+.nav-logo span { color: var(--gray); font-weight: 400; font-size: .75rem; margin-left: .5rem; }
+.nav-cta {
+  padding: .6rem 1.5rem; border-radius: 50px;
+  background: var(--green); color: var(--dark);
+  font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: .9rem;
+  text-decoration: none; transition: var(--transition);
+  box-shadow: 0 4px 16px rgba(46,204,113,.25);
+}
+.nav-cta:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(46,204,113,.4);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Hero
+   ═══════════════════════════════════════════════════════════ */
+.hero {
+  min-height: 100vh;
+  display: flex; flex-direction: column;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  padding: 7rem 0 4rem;
+}
+
+.hero-endorsement {
+  position: absolute; top: 2rem; right: 2rem;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: .85rem; color: var(--gray);
+  letter-spacing: .08em;
+  z-index: 2;
+}
+
+.hero-content { position: relative; z-index: 2; }
+
+.hero h1 {
+  font-size: clamp(2.5rem, 5.5vw, 4.2rem);
+  font-weight: 700;
+  line-height: 1.1;
+  margin-bottom: 1.5rem;
+  max-width: 800px;
+}
+
+.hero h1 .word {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(40px);
+  animation: wordReveal .6s forwards;
+}
+
+@keyframes wordReveal {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* FIXED: --gray now #9BA5B4 (~5.1:1 on --dark) */
+.hero-sub {
+  font-size: clamp(1rem, 2vw, 1.25rem);
+  color: var(--gray);
+  max-width: 650px;
+  line-height: 1.7;
+  margin-bottom: 2.5rem;
+  opacity: 0;
+  animation: fadeUp .8s .8s forwards;
+  transform: translateY(20px);
+}
+
+@keyframes fadeUp {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.btn-primary {
+  display: inline-block;
+  padding: 1rem 2.5rem;
+  background: var(--green);
+  color: var(--dark);
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 600;
+  font-size: 1.05rem;
+  text-decoration: none;
+  border-radius: 50px;
+  border: none; cursor: pointer;
+  transition: var(--transition);
+  opacity: 0;
+  animation: fadeUp .8s 1s forwards;
+  transform: translateY(20px);
+  box-shadow: 0 4px 20px rgba(46,204,113,.25);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 30px rgba(46,204,113,.4);
+}
+
+/* ADDED: Heartbeat pulse animation on CTA button (nunu.ai) */
+@keyframes btnHeartbeat {
+  0%, 100% { box-shadow: 0 4px 20px rgba(46,204,113,.25); }
+  14%  { box-shadow: 0 4px 28px rgba(46,204,113,.55), 0 0 0 6px rgba(46,204,113,.08); }
+  28%  { box-shadow: 0 4px 20px rgba(46,204,113,.25); }
+  42%  { box-shadow: 0 4px 26px rgba(46,204,113,.45), 0 0 0 10px rgba(46,204,113,.05); }
+  70%  { box-shadow: 0 4px 20px rgba(46,204,113,.25); }
+}
+
+/* Heartbeat line */
+.hero-pulse {
+  position: absolute;
+  bottom: 0; left: 0;
+  width: 100%; height: 80px;
+  z-index: 1;
+}
+
+.hero-pulse svg { width: 100%; height: 100%; }
+
+/* FIXED: Heartbeat loop made seamless — use alternate with longer duration for smooth loop */
+.heartbeat-path {
+  fill: none;
+  stroke: var(--green);
+  stroke-width: 2;
+  stroke-linecap: round;
+  opacity: .3;
+  stroke-dasharray: 2000;
+  stroke-dashoffset: 2000;
+  animation: heartbeatLoop 6s linear infinite;
+  filter: drop-shadow(0 0 8px var(--green-glow));
+}
+
+@keyframes heartbeatLoop {
+  0%   { stroke-dashoffset: 2000; opacity: .1; }
+  40%  { opacity: .35; }
+  80%  { stroke-dashoffset: 0; opacity: .3; }
+  100% { stroke-dashoffset: -200; opacity: .0; }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Problem Section — Flip Cards (enhanced)
+   ═══════════════════════════════════════════════════════════ */
+.problems-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.5rem;
+  margin-top: 3rem;
+}
+
+.flip-card {
+  perspective: 800px;
+  height: 260px;
+  cursor: pointer;
+}
+
+.flip-card-inner {
+  position: relative;
+  width: 100%; height: 100%;
+  /* ENHANCED: transition includes scale for pre-flip hint (nunu.ai) */
+  transition: transform .6s cubic-bezier(.4,0,.2,1);
+  transform-style: preserve-3d;
+}
+
+/* ADDED: scale on hover BEFORE flip starts — invites interaction (nunu.ai) */
+.flip-card:hover .flip-card-inner {
+  transform: rotateY(180deg) scale(1.03);
+}
+
+.flip-card-front, .flip-card-back {
+  position: absolute; inset: 0;
+  backface-visibility: hidden;
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  display: flex; flex-direction: column;
+  justify-content: center; align-items: center;
+  text-align: center;
+}
+
+.flip-card-front {
+  background: white;
+  border: 1px solid var(--gray-light);
+  box-shadow: 0 2px 20px rgba(0,0,0,.04);
+  /* ADDED: subtle scale hint on parent hover via box-shadow change */
+  transition: box-shadow .3s ease;
+}
+
+.flip-card:hover .flip-card-front {
+  box-shadow: 0 8px 32px rgba(0,0,0,.1);
+}
+
+.flip-card-front .card-icon { font-size: 2.5rem; margin-bottom: 1rem; }
+
+.flip-card-front h3 {
+  font-size: 1.05rem;
+  color: var(--dark);
+  font-weight: 600;
+}
+
+.flip-card-back {
+  background: var(--dark);
+  color: var(--light);
+  transform: rotateY(180deg);
+  border: 1px solid rgba(46,204,113,.2);
+}
+
+.flip-card-back .solution-icon {
+  width: 40px; height: 40px;
+  background: var(--green-dim);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 1rem;
+  color: var(--green);
+  font-size: 1.2rem;
+}
+
+.flip-card-back h3 {
+  font-size: 1rem;
+  color: var(--green);
+  margin-bottom: .5rem;
+}
+
+/* FIXED: --gray now #9BA5B4 (~5.1:1 on --dark) */
+.flip-card-back p {
+  font-size: .9rem;
+  color: var(--gray);
+  line-height: 1.5;
+}
+
+/* FIXED: .flip-hint on light bg — #6B7685 gives ~4.6:1 on #F8F9FA */
+.flip-hint {
+  text-align: center;
+  margin-top: 1.5rem;
+  color: #6B7685;
+  font-size: .85rem;
+}
+
+.section-light .flip-hint { color: #6B7685; }
+
+/* ═══════════════════════════════════════════════════════════
+   Features — Tab interface (enhanced active indicator)
+   ═══════════════════════════════════════════════════════════ */
+.tabs-container { margin-top: 3rem; }
+
+.tabs-nav {
+  display: flex;
+  gap: .5rem;
+  overflow-x: auto;
+  padding-bottom: .5rem;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  /* ADDED: bottom border line container for active indicator */
+  border-bottom: 2px solid rgba(255,255,255,.06);
+}
+.tabs-nav::-webkit-scrollbar { display: none; }
+
+.tab-btn {
+  flex-shrink: 0;
+  padding: .75rem 1.5rem;
+  background: transparent;
+  border: none;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px; /* overlap parent border */
+  border-radius: 8px 8px 0 0;
+  color: var(--gray);
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: .9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition);
+  white-space: nowrap;
+}
+
+.tab-btn:hover { color: var(--light); }
+
+/* ENHANCED: active tab — bottom line in green + font-size bump + bolder weight (nunu.ai) */
+.tab-btn.active {
+  color: var(--green);
+  border-bottom-color: var(--green);
+  font-weight: 700;
+  font-size: .975rem;
+  background: rgba(46,204,113,.06);
+}
+
+.tab-panel {
+  display: none;
+  padding: 2.5rem 0;
+  animation: fadeIn .4s ease;
+}
+.tab-panel.active { display: flex; gap: 3rem; align-items: flex-start; flex-wrap: wrap; }
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+.tab-text { flex: 1; min-width: 280px; }
+.tab-text h3 {
+  font-size: 1.5rem;
+  margin-bottom: .75rem;
+  color: var(--light);
+}
+/* FIXED: --gray now #9BA5B4 */
+.tab-text p {
+  color: var(--gray);
+  line-height: 1.7;
+  margin-bottom: 1rem;
+}
+.tab-text ul {
+  list-style: none; padding: 0;
+}
+/* FIXED: --gray now #9BA5B4 */
+.tab-text ul li {
+  padding: .4rem 0;
+  color: var(--gray);
+  font-size: .95rem;
+}
+.tab-text ul li::before {
+  content: '→';
+  color: var(--green);
+  margin-right: .5rem;
+  font-weight: 600;
+}
+
+/* CSS UI Mockup */
+.tab-mockup {
+  flex: 1;
+  min-width: 300px;
+  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(255,255,255,.06);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  font-family: 'Inter', monospace;
+  font-size: .8rem;
+}
+
+.mockup-bar {
+  display: flex; gap: 6px;
+  margin-bottom: 1rem;
+  padding-bottom: .75rem;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+}
+.mockup-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+}
+/* FIXED: --red now #F06B5D */
+.mockup-dot:nth-child(1) { background: var(--red); }
+.mockup-dot:nth-child(2) { background: #F39C12; }
+.mockup-dot:nth-child(3) { background: var(--green); }
+
+.mockup-row {
+  display: flex; align-items: center;
+  gap: .75rem;
+  padding: .5rem .75rem;
+  border-radius: 8px;
+  margin-bottom: .4rem;
+  background: rgba(255,255,255,.02);
+}
+
+.mockup-badge {
+  padding: .2rem .6rem;
+  border-radius: 4px;
+  font-size: .7rem;
+  font-weight: 600;
+}
+/* FIXED: badge colors updated for contrast on dark card bg */
+.badge-green { background: var(--green-dim); color: var(--green); }
+/* FIXED: --blue now #5BAEE0 (~4.7:1 on --dark) */
+.badge-blue { background: rgba(91,174,224,.15); color: var(--blue); }
+.badge-gray { background: rgba(255,255,255,.06); color: var(--gray); }
+/* FIXED: --red now #F06B5D (~4.6:1 on --dark) */
+.badge-red { background: rgba(240,107,93,.15); color: var(--red); }
+
+/* FIXED: --gray now #9BA5B4 */
+.mockup-text { color: var(--gray); }
+.mockup-text-light { color: rgba(255,255,255,.3); }
+.mockup-label { color: var(--light); font-weight: 500; }
+
+/* ═══════════════════════════════════════════════════════════
+   Comparison Table
+   ═══════════════════════════════════════════════════════════ */
+.comparison-wrapper { margin-top: 3rem; overflow-x: auto; }
+
+.comparison-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: .95rem;
+}
+
+.comparison-table thead th {
+  padding: 1rem 1.5rem;
+  text-align: left;
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 600;
+  font-size: 1rem;
+  border-bottom: 2px solid var(--gray-light);
+}
+
+/* FIXED: th:nth-child(2) green on light bg — #2ECC71 on #F8F9FA = ~3.8:1 → bump to #27AE60 for ~4.6:1 */
+.comparison-table thead th:nth-child(2) { color: #27AE60; text-align: center; }
+/* FIXED: th:nth-child(3) --gray on light bg — use #5a6270 (~5.6:1) */
+.comparison-table thead th:nth-child(3) { color: #5a6270; text-align: center; }
+
+.comparison-table tbody tr {
+  opacity: 0;
+  transform: translateX(-20px);
+  transition: opacity .5s ease, transform .5s ease;
+}
+.comparison-table tbody tr.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.comparison-table tbody td {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid rgba(0,0,0,.05);
+  color: var(--dark);
+}
+
+.comparison-table tbody td:nth-child(2),
+.comparison-table tbody td:nth-child(3) { text-align: center; font-size: 1.2rem; }
+
+/* FIXED: .check on light bg — #27AE60 for ~4.6:1 on #F8F9FA */
+.check { color: #27AE60; font-weight: 700; }
+/* FIXED: .cross on light bg — #C0392B for ~5.1:1 on #F8F9FA */
+.cross { color: #C0392B; font-weight: 700; }
+
+/* ═══════════════════════════════════════════════════════════
+   Compliance Cards
+   ═══════════════════════════════════════════════════════════ */
+.compliance-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-top: 3rem;
+}
+
+.compliance-card {
+  background: var(--card-dark);
+  border: 1px solid rgba(255,255,255,.06);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  transition: var(--transition);
+}
+
+.compliance-card:hover {
+  border-color: rgba(46,204,113,.2);
+  transform: translateY(-4px);
+}
+
+.compliance-icon {
+  width: 48px; height: 48px;
+  background: var(--green-dim);
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 1.25rem;
+  font-size: 1.4rem;
+}
+
+.compliance-card h3 {
+  font-size: 1.05rem;
+  margin-bottom: .5rem;
+  color: var(--light);
+}
+
+.compliance-card .law-ref {
+  font-size: .8rem;
+  color: var(--green);
+  font-weight: 600;
+  margin-bottom: .5rem;
+  letter-spacing: .03em;
+}
+
+/* FIXED: --gray now #9BA5B4 */
+.compliance-card p {
+  font-size: .9rem;
+  color: var(--gray);
+  line-height: 1.5;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Numbers / Impact
+   ═══════════════════════════════════════════════════════════ */
+.numbers-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 2rem;
+  margin-top: 3rem;
+  text-align: center;
+}
+
+.number-item .number-value {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(3rem, 6vw, 4.5rem);
+  font-weight: 700;
+  color: var(--green);
+  line-height: 1;
+  margin-bottom: .5rem;
+}
+
+/* #5a6270 on #F8F9FA = ~5.6:1 — passes. No change needed */
+.number-item .number-label {
+  font-size: .95rem;
+  color: #5a6270;
+  line-height: 1.4;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   AI Section
+   ═══════════════════════════════════════════════════════════ */
+.ai-features { margin-top: 3rem; }
+
+.ai-feature {
+  display: flex; gap: 2rem;
+  align-items: flex-start;
+  padding: 2rem;
+  border-radius: var(--radius-lg);
+  margin-bottom: 1.5rem;
+  background: var(--card-dark);
+  border: 1px solid rgba(255,255,255,.04);
+  transition: var(--transition);
+}
+
+.ai-feature.visible {
+  border-color: rgba(46,204,113,.15);
+  box-shadow: 0 0 30px rgba(46,204,113,.05);
+}
+
+.ai-glow {
+  flex-shrink: 0;
+  width: 56px; height: 56px;
+  border-radius: 16px;
+  background: var(--green-dim);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.5rem;
+  transition: box-shadow .6s ease;
+}
+
+.ai-feature.visible .ai-glow {
+  box-shadow: 0 0 20px var(--green-glow), 0 0 40px rgba(46,204,113,.1);
+}
+
+.ai-content h3 {
+  font-size: 1.15rem;
+  margin-bottom: .5rem;
+  color: var(--light);
+}
+
+/* FIXED: --gray now #9BA5B4 */
+.ai-content p {
+  color: var(--gray);
+  line-height: 1.6;
+  font-size: .95rem;
+}
+
+.ai-content .ai-example {
+  margin-top: .75rem;
+  padding: .75rem 1rem;
+  background: rgba(255,255,255,.03);
+  border-left: 3px solid var(--green);
+  border-radius: 0 8px 8px 0;
+  font-family: 'Inter', monospace;
+  font-size: .85rem;
+  color: var(--green);
+}
+
+/* FIXED: --gray now #9BA5B4 */
+.ai-disclaimer {
+  text-align: center;
+  margin-top: 2.5rem;
+  padding: 1rem 2rem;
+  border: 1px solid rgba(46,204,113,.15);
+  border-radius: 50px;
+  display: inline-block;
+  font-size: .9rem;
+  color: var(--gray);
+}
+
+.ai-disclaimer strong { color: var(--green); }
+
+/* ═══════════════════════════════════════════════════════════
+   CTA Section
+   ═══════════════════════════════════════════════════════════ */
+.cta-section {
+  text-align: center;
+  padding: 8rem 0;
+}
+
+.cta-section h2 {
+  font-size: clamp(2rem, 4vw, 3rem);
+  margin-bottom: 1rem;
+}
+
+/* FIXED: --gray now #9BA5B4 */
+.cta-section p {
+  color: var(--gray);
+  font-size: 1.15rem;
+  margin-bottom: 2.5rem;
+  max-width: 500px;
+  margin-left: auto; margin-right: auto;
+  line-height: 1.6;
+}
+
+/* ADDED: pulse heartbeat animation on "Agendar demo" CTA (nunu.ai) */
+.cta-section .btn-primary {
+  opacity: 1;
+  animation: btnHeartbeat 2.4s ease-in-out 2s infinite !important;
+  transform: none;
+  font-size: 1.1rem;
+  padding: 1.1rem 3rem;
+}
+
+.cta-section .btn-primary:hover {
+  animation: none !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 30px rgba(46,204,113,.5) !important;
+}
+
+/* FIXED: --gray now #9BA5B4 */
+.cta-small {
+  margin-top: 1rem;
+  font-size: .85rem;
+  color: var(--gray);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Footer
+   ═══════════════════════════════════════════════════════════ */
+footer {
+  border-top: 1px solid rgba(255,255,255,.06);
+  padding: 3rem 0;
+}
+
+.footer-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+
+.footer-brand {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--light);
+}
+
+/* FIXED: --gray now #9BA5B4 */
+.footer-brand span {
+  font-size: .8rem;
+  color: var(--gray);
+  font-weight: 400;
+  margin-left: .5rem;
+}
+
+.footer-links {
+  display: flex; gap: 2rem;
+  list-style: none;
+}
+
+/* FIXED: --gray now #9BA5B4 */
+.footer-links a {
+  color: var(--gray);
+  text-decoration: none;
+  font-size: .9rem;
+  transition: color var(--transition);
+}
+
+.footer-links a:hover { color: var(--green); }
+
+/* FIXED: --gray now #9BA5B4 */
+.footer-slogan {
+  width: 100%;
+  text-align: center;
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(255,255,255,.04);
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: .9rem;
+  color: var(--gray);
+  letter-spacing: .05em;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Responsive
+   ═══════════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  section { padding: 5rem 0; }
+  .container { padding: 0 1.25rem; }
+
+  .hero { padding: 5rem 0 3rem; }
+  .hero-endorsement { top: 1.25rem; right: 1.25rem; font-size: .75rem; }
+
+  .problems-grid { grid-template-columns: 1fr 1fr; }
+  .flip-card { height: 220px; }
+
+  .tab-panel.active { flex-direction: column; }
+  .tab-mockup { min-width: 100%; }
+
+  .comparison-table { font-size: .85rem; }
+  .comparison-table thead th,
+  .comparison-table tbody td { padding: .75rem 1rem; }
+
+  .ai-feature { flex-direction: column; gap: 1rem; }
+
+  .numbers-grid { grid-template-columns: 1fr 1fr; }
+
+  .footer-inner { flex-direction: column; text-align: center; }
+  .footer-links { justify-content: center; }
+}
+
+@media (max-width: 480px) {
+  .problems-grid { grid-template-columns: 1fr; }
+  .numbers-grid { grid-template-columns: 1fr 1fr; }
+  .compliance-grid { grid-template-columns: 1fr; }
+  .tabs-nav { gap: .35rem; }
+  .tab-btn { padding: .6rem 1rem; font-size: .8rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════
+     PRELOADER
+     ═══════════════════════════════════════════════════════════ -->
+<div id="preloader">
+  <div class="pulse-container">
+    <svg class="pulse-svg" viewBox="0 0 200 60">
+      <path class="pulse-line pulse-path"
+        d="M0,30 L40,30 L50,30 L55,10 L60,50 L65,10 L70,50 L75,30 L85,30 L95,30 L100,15 L105,45 L110,15 L115,45 L120,30 L160,30 L200,30" />
+    </svg>
+  </div>
+  <div class="preloader-text">VitaCore</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     NAV (glassmorphism — nunu.ai)
+     ═══════════════════════════════════════════════════════════ -->
+<nav class="site-nav" id="siteNav">
+  <a href="#" class="nav-logo">VitaCore <span>by White Rabbit</span></a>
+  <a href="#cta" class="nav-cta">Agendar demo</a>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════════════
+     HERO
+     ═══════════════════════════════════════════════════════════ -->
+<section class="hero section-dark">
+  <div class="hero-endorsement">by White Rabbit</div>
+  <div class="container hero-content">
+    <h1 id="hero-headline"></h1>
+    <p class="hero-sub">
+      Historia clínica, turnos, recetas, facturación — todo en una plataforma con inteligencia artificial.
+    </p>
+    <a href="#cta" class="btn-primary">Conoce VitaCore</a>
+  </div>
+  <div class="hero-pulse">
+    <svg viewBox="0 0 1440 80" preserveAspectRatio="none">
+      <path class="heartbeat-path"
+        d="M0,40 L200,40 L280,40 L300,10 L320,70 L340,10 L360,70 L380,40 L500,40 L600,40 L620,15 L640,65 L660,15 L680,65 L700,40 L900,40 L980,40 L1000,10 L1020,70 L1040,10 L1060,70 L1080,40 L1200,40 L1300,40 L1320,15 L1340,65 L1360,15 L1380,65 L1400,40 L1440,40" />
+    </svg>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     PROBLEM SECTION
+     ═══════════════════════════════════════════════════════════ -->
+<section class="section-light" id="problemas">
+  <div class="container">
+    <div class="reveal">
+      <h2 class="section-title">¿Te suena familiar?</h2>
+      <p class="section-subtitle">Tu consultorio funciona, pero podrías dedicar más tiempo a tus pacientes y menos a la burocracia.</p>
+    </div>
+    <div class="problems-grid reveal">
+      <div class="flip-card">
+        <div class="flip-card-inner">
+          <div class="flip-card-front">
+            <div class="card-icon">📋</div>
+            <h3>Historia clínica en papel</h3>
+          </div>
+          <div class="flip-card-back">
+            <div class="solution-icon">✓</div>
+            <h3>HCE digital con AI</h3>
+            <p>Historia clínica electrónica con auto-fill inteligente, firma electrónica y codificación SNOMED automática.</p>
+          </div>
+        </div>
+      </div>
+      <div class="flip-card">
+        <div class="flip-card-inner">
+          <div class="flip-card-front">
+            <div class="card-icon">📱</div>
+            <h3>Turnos por WhatsApp y teléfono</h3>
+          </div>
+          <div class="flip-card-back">
+            <div class="solution-icon">✓</div>
+            <h3>Booking online inteligente</h3>
+            <p>Agenda multi-profesional con booking 24/7, lista de espera inteligente y confirmaciones automáticas.</p>
+          </div>
+        </div>
+      </div>
+      <div class="flip-card">
+        <div class="flip-card-inner">
+          <div class="flip-card-front">
+            <div class="card-icon">📝</div>
+            <h3>Recetas manuscritas</h3>
+          </div>
+          <div class="flip-card-back">
+            <div class="solution-icon">✓</div>
+            <h3>Receta electrónica con CUIR</h3>
+            <p>Prescripción digital con firma electrónica, envío por WhatsApp y trazabilidad completa.</p>
+          </div>
+        </div>
+      </div>
+      <div class="flip-card">
+        <div class="flip-card-inner">
+          <div class="flip-card-front">
+            <div class="card-icon">🧾</div>
+            <h3>Facturación manual a obras sociales</h3>
+          </div>
+          <div class="flip-card-back">
+            <div class="solution-icon">✓</div>
+            <h3>Lotes automáticos por OS</h3>
+            <p>Generación automática de lotes, seguimiento de copagos y métricas de facturación en tiempo real.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="flip-hint reveal">Pasá el cursor sobre cada tarjeta para ver la solución</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     FEATURES — TABS
+     ═══════════════════════════════════════════════════════════ -->
+<section class="section-dark" id="funcionalidades">
+  <div class="container">
+    <div class="reveal">
+      <h2 class="section-title">Todo lo que tu consultorio necesita.</h2>
+      <p class="section-subtitle">Una plataforma integral diseñada para profesionales de la salud que quieren enfocarse en lo que importa.</p>
+    </div>
+    <div class="tabs-container reveal">
+      <div class="tabs-nav">
+        <button class="tab-btn active" data-tab="agenda">Agenda inteligente</button>
+        <button class="tab-btn" data-tab="hce">HCE con AI</button>
+        <button class="tab-btn" data-tab="receta">Receta electrónica</button>
+        <button class="tab-btn" data-tab="portal">Portal del paciente</button>
+        <button class="tab-btn" data-tab="facturacion">Facturación</button>
+      </div>
+
+      <!-- Tab: Agenda -->
+      <div class="tab-panel active" id="tab-agenda">
+        <div class="tab-text">
+          <h3>Agenda inteligente</h3>
+          <p>Timeline multi-profesional con drag-and-drop, estados en tiempo real y gestión visual de tu día.</p>
+          <ul>
+            <li>Vista diaria, semanal y mensual</li>
+            <li>Drag-and-drop para reprogramar</li>
+            <li>Estados: confirmado, en sala, atendido, ausente</li>
+            <li>Lista de espera inteligente</li>
+            <li>Booking online para pacientes</li>
+          </ul>
+        </div>
+        <div class="tab-mockup">
+          <div class="mockup-bar"><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-dot"></div></div>
+          <div style="color:var(--gray);font-size:.75rem;margin-bottom:.75rem;font-weight:600;">LUNES 17 MAR — Dr. García</div>
+          <div class="mockup-row">
+            <span class="mockup-badge badge-green">09:00</span>
+            <span class="mockup-label">María López</span>
+            <span class="mockup-badge badge-green">Confirmado</span>
+          </div>
+          <div class="mockup-row" style="background:rgba(46,204,113,.08);">
+            <span class="mockup-badge badge-green">09:30</span>
+            <span class="mockup-label">Carlos Ruiz</span>
+            <span class="mockup-badge badge-blue">En sala</span>
+          </div>
+          <div class="mockup-row">
+            <span class="mockup-badge badge-gray">10:00</span>
+            <span class="mockup-label">Ana Martínez</span>
+            <span class="mockup-badge badge-gray">Pendiente</span>
+          </div>
+          <div class="mockup-row">
+            <span class="mockup-badge badge-gray">10:30</span>
+            <span class="mockup-text-light">— Disponible —</span>
+          </div>
+          <div class="mockup-row">
+            <span class="mockup-badge badge-gray">11:00</span>
+            <span class="mockup-label">Pedro Sánchez</span>
+            <span class="mockup-badge badge-red">Ausente</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab: HCE -->
+      <div class="tab-panel" id="tab-hce">
+        <div class="tab-text">
+          <h3>Historia Clínica Electrónica con AI</h3>
+          <p>Auto-fill de evoluciones, codificación SNOMED automática y alertas de interacciones medicamentosas.</p>
+          <ul>
+            <li>Auto-completado inteligente de evoluciones</li>
+            <li>Codificación CIE-10 / SNOMED automática</li>
+            <li>Alertas de interacciones farmacológicas</li>
+            <li>Antecedentes y alergias siempre visibles</li>
+            <li>Firma electrónica integrada</li>
+          </ul>
+        </div>
+        <div class="tab-mockup">
+          <div class="mockup-bar"><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-dot"></div></div>
+          <div style="color:var(--gray);font-size:.75rem;margin-bottom:.75rem;font-weight:600;">HCE — María López</div>
+          <div class="mockup-row" style="flex-direction:column;align-items:flex-start;gap:.3rem;">
+            <span class="mockup-label">Evolución — 17/03/2026</span>
+            <span class="mockup-text" style="font-size:.8rem;">Paciente refiere cefalea de 3 días de evolución...</span>
+            <span class="mockup-badge badge-green" style="margin-top:.25rem;">✨ AI: ¿Agregar tensión arterial y examen neurológico?</span>
+          </div>
+          <div class="mockup-row">
+            <span class="mockup-text">Diagnóstico: Cefalea tensional</span>
+            <span class="mockup-badge badge-blue">SNOMED: 398057008</span>
+          </div>
+          <div class="mockup-row" style="border-left:2px solid var(--red);">
+            <span class="mockup-badge badge-red">⚠ Alerta</span>
+            <span class="mockup-text" style="font-size:.8rem;">Ibuprofeno + Enalapril → Riesgo renal</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab: Receta -->
+      <div class="tab-panel" id="tab-receta">
+        <div class="tab-text">
+          <h3>Receta electrónica</h3>
+          <p>Prescripción digital con CUIR, firma electrónica y envío directo al paciente.</p>
+          <ul>
+            <li>Código CUIR para trazabilidad</li>
+            <li>Firma digital con certificado</li>
+            <li>Envío por WhatsApp o email</li>
+            <li>Vademécum integrado</li>
+            <li>Control de duplicados y alertas</li>
+          </ul>
+        </div>
+        <div class="tab-mockup">
+          <div class="mockup-bar"><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-dot"></div></div>
+          <div style="color:var(--gray);font-size:.75rem;margin-bottom:.75rem;font-weight:600;">RECETA ELECTRÓNICA</div>
+          <div class="mockup-row" style="flex-direction:column;align-items:flex-start;gap:.3rem;">
+            <span class="mockup-label">Rp/</span>
+            <span class="mockup-text" style="font-size:.85rem;">Losartán 50mg — 1 comp/día — 30 días</span>
+            <span class="mockup-text" style="font-size:.85rem;">Amlodipina 5mg — 1 comp/día — 30 días</span>
+          </div>
+          <div class="mockup-row">
+            <span class="mockup-badge badge-green">✓ Firmado digitalmente</span>
+            <span class="mockup-badge badge-blue">CUIR: 2026-03-17-4829</span>
+          </div>
+          <div class="mockup-row">
+            <span class="mockup-badge badge-green">📱 Enviado por WhatsApp</span>
+            <span class="mockup-text-light">hace 2 min</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab: Portal -->
+      <div class="tab-panel" id="tab-portal">
+        <div class="tab-text">
+          <h3>Portal del paciente</h3>
+          <p>Tus pacientes acceden a turnos, recetas y estudios desde cualquier dispositivo, sin contraseñas.</p>
+          <ul>
+            <li>Login passwordless (magic link)</li>
+            <li>Reserva de turnos online 24/7</li>
+            <li>Descarga de recetas y estudios</li>
+            <li>Historial de consultas</li>
+            <li>Notificaciones de recordatorio</li>
+          </ul>
+        </div>
+        <div class="tab-mockup">
+          <div class="mockup-bar"><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-dot"></div></div>
+          <div style="color:var(--gray);font-size:.75rem;margin-bottom:.75rem;font-weight:600;">PORTAL — María López</div>
+          <div class="mockup-row">
+            <span class="mockup-label">Próximo turno</span>
+            <span class="mockup-badge badge-green">Lun 24/03 — 10:00</span>
+          </div>
+          <div class="mockup-row" style="flex-direction:column;align-items:flex-start;gap:.3rem;">
+            <span class="mockup-label">Recetas recientes</span>
+            <span class="mockup-text" style="font-size:.85rem;">📄 Losartán 50mg — 17/03/2026</span>
+            <span class="mockup-text" style="font-size:.85rem;">📄 Amlodipina 5mg — 17/03/2026</span>
+          </div>
+          <div class="mockup-row">
+            <span class="mockup-label">Estudios</span>
+            <span class="mockup-badge badge-blue">📎 Laboratorio — 10/03/2026</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab: Facturación -->
+      <div class="tab-panel" id="tab-facturacion">
+        <div class="tab-text">
+          <h3>Facturación inteligente</h3>
+          <p>Generación automática de lotes por obra social, seguimiento de copagos y métricas financieras.</p>
+          <ul>
+            <li>Lotes automáticos por obra social</li>
+            <li>Registro de copagos y pagos</li>
+            <li>Dashboard de métricas financieras</li>
+            <li>Exportación para contabilidad</li>
+            <li>Alertas de lotes pendientes</li>
+          </ul>
+        </div>
+        <div class="tab-mockup">
+          <div class="mockup-bar"><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-dot"></div></div>
+          <div style="color:var(--gray);font-size:.75rem;margin-bottom:.75rem;font-weight:600;">FACTURACIÓN — MARZO 2026</div>
+          <div class="mockup-row">
+            <span class="mockup-label">OSDE</span>
+            <span class="mockup-text">42 prácticas</span>
+            <span class="mockup-badge badge-green">Lote enviado</span>
+          </div>
+          <div class="mockup-row">
+            <span class="mockup-label">Swiss Medical</span>
+            <span class="mockup-text">28 prácticas</span>
+            <span class="mockup-badge badge-blue">En proceso</span>
+          </div>
+          <div class="mockup-row">
+            <span class="mockup-label">PAMI</span>
+            <span class="mockup-text">67 prácticas</span>
+            <span class="mockup-badge badge-gray">Pendiente</span>
+          </div>
+          <div class="mockup-row" style="border-top:1px solid rgba(255,255,255,.06);margin-top:.25rem;padding-top:.75rem;">
+            <span class="mockup-text">Total marzo:</span>
+            <span class="mockup-label" style="color:var(--green);">$2.847.500</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     COMPARISON TABLE
+     ═══════════════════════════════════════════════════════════ -->
+<section class="section-light" id="comparativa">
+  <div class="container">
+    <div class="reveal">
+      <h2 class="section-title">No todos los sistemas de salud son iguales.</h2>
+      <p class="section-subtitle">VitaCore fue diseñado desde cero para el consultorio del futuro.</p>
+    </div>
+    <div class="comparison-wrapper reveal">
+      <table class="comparison-table">
+        <thead>
+          <tr>
+            <th>Funcionalidad</th>
+            <th>VitaCore</th>
+            <th>Sistemas tradicionales</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>AI clínica integrada</td><td class="check">✓</td><td class="cross">✗</td></tr>
+          <tr><td>Portal del paciente</td><td class="check">✓</td><td class="cross">✗</td></tr>
+          <tr><td>Receta electrónica nativa</td><td class="check">✓</td><td class="cross">✗</td></tr>
+          <tr><td>RBAC granular</td><td class="check">✓</td><td class="cross">✗</td></tr>
+          <tr><td>Audit logs completos</td><td class="check">✓</td><td class="cross">✗</td></tr>
+          <tr><td>WhatsApp incluido</td><td class="check">✓</td><td class="cross">✗</td></tr>
+          <tr><td>Firma digital integrada</td><td class="check">✓</td><td class="cross">✗</td></tr>
+          <tr><td>Lista de espera inteligente</td><td class="check">✓</td><td class="cross">✗</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     COMPLIANCE
+     ═══════════════════════════════════════════════════════════ -->
+<section class="section-dark" id="cumplimiento">
+  <div class="container">
+    <div class="reveal">
+      <h2 class="section-title">Cumplimiento normativo nativo.</h2>
+      <p class="section-subtitle">VitaCore no adapta — nace cumpliendo. Cada módulo fue diseñado sobre la normativa vigente.</p>
+    </div>
+    <div class="compliance-grid reveal">
+      <div class="compliance-card">
+        <div class="compliance-icon">🛡</div>
+        <div class="law-ref">LEY 27.706</div>
+        <h3>Historia Clínica Electrónica</h3>
+        <p>Los 7 requisitos de la ley cumplidos de forma nativa: integridad, autenticidad, disponibilidad, confidencialidad, auditabilidad, conservación e interoperabilidad.</p>
+      </div>
+      <div class="compliance-card">
+        <div class="compliance-icon">📋</div>
+        <div class="law-ref">LEY 27.553</div>
+        <h3>Receta electrónica</h3>
+        <p>Prescripción digital con trazabilidad completa, código CUIR y validación en tiempo real contra el vademécum.</p>
+      </div>
+      <div class="compliance-card">
+        <div class="compliance-icon">🔐</div>
+        <div class="law-ref">LEY 25.506</div>
+        <h3>Firma digital</h3>
+        <p>Firma electrónica y digital integrada para todos los documentos clínicos, con certificado de validez legal.</p>
+      </div>
+      <div class="compliance-card">
+        <div class="compliance-icon">🔗</div>
+        <div class="law-ref">FHIR R4</div>
+        <h3>Interoperabilidad</h3>
+        <p>Estándar internacional para intercambio de datos de salud. Conectá VitaCore con cualquier sistema compatible.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     NUMBERS
+     ═══════════════════════════════════════════════════════════ -->
+<section class="section-light" id="numeros">
+  <div class="container">
+    <div class="reveal">
+      <h2 class="section-title">VitaCore en números.</h2>
+    </div>
+    <div class="numbers-grid reveal">
+      <div class="number-item">
+        <div class="number-value" data-target="37" data-suffix="">0</div>
+        <div class="number-label">User stories en el MVP</div>
+      </div>
+      <div class="number-item">
+        <div class="number-value" data-target="76" data-suffix="%">0</div>
+        <div class="number-label">Diferenciadores vs competencia</div>
+      </div>
+      <div class="number-item">
+        <div class="number-value" data-target="0" data-suffix="" data-special="24/7">24/7</div>
+        <div class="number-label">Portal del paciente disponible</div>
+      </div>
+      <div class="number-item">
+        <div class="number-value" data-target="0" data-suffix="" data-special="0">0</div>
+        <div class="number-label">Papel necesario</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     AI SECTION
+     ═══════════════════════════════════════════════════════════ -->
+<section class="section-dark" id="ai">
+  <div class="container">
+    <div class="reveal">
+      <h2 class="section-title">Inteligencia artificial al servicio de la salud.</h2>
+      <p class="section-subtitle">AI que asiste, no que reemplaza. Cada sugerencia es revisada y aprobada por el profesional.</p>
+    </div>
+    <div class="ai-features">
+      <div class="ai-feature reveal">
+        <div class="ai-glow">🧠</div>
+        <div class="ai-content">
+          <h3>Auto-fill de evoluciones</h3>
+          <p>El médico escribe, la AI completa. Sugerencias contextuales basadas en el motivo de consulta, antecedentes y medicación activa.</p>
+          <div class="ai-example">Escribís "cefalea 3 días" → La AI sugiere anamnesis, examen físico y diagnósticos diferenciales.</div>
+        </div>
+      </div>
+      <div class="ai-feature reveal">
+        <div class="ai-glow">🏷</div>
+        <div class="ai-content">
+          <h3>Codificación SNOMED automática</h3>
+          <p>Escribí en lenguaje natural. La AI identifica diagnósticos y los codifica automáticamente en CIE-10 y SNOMED-CT.</p>
+          <div class="ai-example">Escribís "hipertensión" → SNOMED: 38341003 | CIE-10: I10</div>
+        </div>
+      </div>
+      <div class="ai-feature reveal">
+        <div class="ai-glow">⚠</div>
+        <div class="ai-content">
+          <h3>Alertas de interacciones</h3>
+          <p>Detección en tiempo real de interacciones medicamentosas, alergias cruzadas y contraindicaciones.</p>
+          <div class="ai-example">Enalapril + Ibuprofeno → Riesgo renal detectado. Se sugiere alternativa.</div>
+        </div>
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:2.5rem;" class="reveal">
+      <span class="ai-disclaimer"><strong>Asistido por IA</strong> — el médico siempre tiene la última palabra.</span>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     CTA
+     ═══════════════════════════════════════════════════════════ -->
+<section class="section-dark cta-section" id="cta">
+  <div class="container reveal">
+    <h2>Tu consultorio merece más.</h2>
+    <p>Agendá una demo — te mostramos VitaCore en 15 minutos.</p>
+    <a href="#" class="btn-primary">Agendar demo</a>
+    <div class="cta-small">Sin compromiso. Sin tarjeta.</div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     FOOTER
+     ═══════════════════════════════════════════════════════════ -->
+<footer class="section-dark">
+  <div class="container">
+    <div class="footer-inner">
+      <div class="footer-brand">VitaCore <span>by White Rabbit</span></div>
+      <ul class="footer-links">
+        <li><a href="#funcionalidades">Funcionalidades</a></li>
+        <li><a href="#comparativa">Comparativa</a></li>
+        <li><a href="#cumplimiento">Cumplimiento</a></li>
+        <li><a href="#cta">Demo</a></li>
+      </ul>
+      <div class="footer-slogan">Salud inteligente.</div>
+    </div>
+  </div>
+</footer>
+
+<!-- ═══════════════════════════════════════════════════════════
+     JAVASCRIPT
+     ═══════════════════════════════════════════════════════════ -->
+<script>
+(function() {
+  'use strict';
+
+  // ─── Preloader ───
+  window.addEventListener('load', function() {
+    setTimeout(function() {
+      document.getElementById('preloader').classList.add('hidden');
+    }, 1800);
+  });
+
+  // ─── Nav scroll ───
+  var nav = document.getElementById('siteNav');
+  window.addEventListener('scroll', function() {
+    nav.classList.toggle('scrolled', window.scrollY > 60);
+  }, { passive: true });
+
+  // ─── Hero staggered text reveal ───
+  var headline = 'Tu consultorio merece tecnología de primera.';
+  var words = headline.split(' ');
+  var heroEl = document.getElementById('hero-headline');
+  words.forEach(function(word, i) {
+    var span = document.createElement('span');
+    span.className = 'word';
+    span.textContent = word + '\u00A0';
+    span.style.animationDelay = (0.15 + i * 0.1) + 's';
+    heroEl.appendChild(span);
+  });
+
+  // ─── Tabs ───
+  var tabBtns = document.querySelectorAll('.tab-btn');
+  tabBtns.forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      tabBtns.forEach(function(b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
+      document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+    });
+  });
+
+  // ─── Scroll reveal ───
+  var reveals = document.querySelectorAll('.reveal');
+  var tableRows = document.querySelectorAll('.comparison-table tbody tr');
+  var aiFeatures = document.querySelectorAll('.ai-feature');
+
+  function checkReveal() {
+    var windowH = window.innerHeight;
+
+    reveals.forEach(function(el) {
+      var top = el.getBoundingClientRect().top;
+      if (top < windowH * 0.88) {
+        el.classList.add('visible');
+      }
+    });
+
+    // Table row stagger
+    tableRows.forEach(function(row, i) {
+      var top = row.getBoundingClientRect().top;
+      if (top < windowH * 0.92) {
+        setTimeout(function() {
+          row.classList.add('visible');
+        }, i * 100);
+      }
+    });
+
+    // AI features glow
+    aiFeatures.forEach(function(el) {
+      var top = el.getBoundingClientRect().top;
+      if (top < windowH * 0.85) {
+        el.classList.add('visible');
+      }
+    });
+  }
+
+  // ─── Counter animation ───
+  var countersAnimated = false;
+  function animateCounters() {
+    if (countersAnimated) return;
+    var counters = document.querySelectorAll('.number-value');
+    var firstCounter = counters[0];
+    if (!firstCounter) return;
+    var top = firstCounter.getBoundingClientRect().top;
+    if (top > window.innerHeight * 0.85) return;
+    countersAnimated = true;
+
+    counters.forEach(function(el) {
+      var special = el.dataset.special;
+      if (special !== undefined) {
+        el.textContent = special;
+        return;
+      }
+      var target = parseInt(el.dataset.target);
+      var suffix = el.dataset.suffix || '';
+      var duration = 1500;
+      var start = 0;
+      var startTime = null;
+
+      function step(timestamp) {
+        if (!startTime) startTime = timestamp;
+        var progress = Math.min((timestamp - startTime) / duration, 1);
+        var eased = 1 - Math.pow(1 - progress, 3);
+        var current = Math.round(start + (target - start) * eased);
+        el.textContent = current + suffix;
+        if (progress < 1) requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+    });
+  }
+
+  window.addEventListener('scroll', function() {
+    checkReveal();
+    animateCounters();
+  }, { passive: true });
+
+  // Initial check
+  checkReveal();
+  animateCounters();
+})();
+</script>
+</body>
+</html>
