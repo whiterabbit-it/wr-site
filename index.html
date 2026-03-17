@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="White Rabbit — Consultora de software a medida AI-first. Transformamos datos en decisiones. LATAM.">
+<meta name="description" content="White Rabbit: consultora de software a medida AI-first. Transformamos datos en decisiones. LATAM.">
 <meta name="theme-color" content="#0A0A0A">
-<title>White Rabbit — Ver más allá. Construir en serio.</title>
+<title>White Rabbit: Ver más allá. Construir en serio.</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -126,24 +126,28 @@ button, input, textarea {
    ============================================ */
 .cursor {
   position: fixed;
-  width: 12px;
-  height: 12px;
+  width: 10px;
+  height: 10px;
   background: var(--lime);
   border-radius: 50%;
   pointer-events: none;
   z-index: 9999;
-  mix-blend-mode: difference;
+  box-shadow: 0 0 0 1.5px rgba(0, 0, 0, 0.35);
   transition: width 0.3s var(--ease-out-expo),
               height 0.3s var(--ease-out-expo),
+              background 0.3s ease,
+              box-shadow 0.3s ease,
               opacity 0.3s ease;
   transform: translate(-50%, -50%);
   will-change: transform;
 }
 
 .cursor.hover {
-  width: 40px;
-  height: 40px;
-  opacity: 0.5;
+  width: 36px;
+  height: 36px;
+  background: rgba(12, 12, 12, 0.88);
+  box-shadow: 0 0 0 1.5px var(--lime);
+  opacity: 1;
 }
 
 .cursor.hidden { opacity: 0; }
@@ -986,19 +990,19 @@ button, input, textarea {
 .rabbit-ear-left {
   transform: rotate(-12deg);
   left: calc(50% - 25px);
-  background: linear-gradient(to top, var(--dark), var(--lime));
+  background: linear-gradient(to top, var(--dark), rgba(10,10,10,0.4));
 }
 
 .rabbit-ear-right {
   transform: rotate(12deg);
   left: calc(50% + 22px);
-  background: linear-gradient(to top, var(--dark), var(--lime));
+  background: linear-gradient(to top, var(--dark), rgba(10,10,10,0.4));
 }
 
 .rabbit-head {
   width: 50px;
   height: 50px;
-  border: 3px solid var(--lime);
+  border: 2.5px solid var(--dark);
   border-radius: 50%;
   position: absolute;
   bottom: calc(50% - 30px);
@@ -1007,7 +1011,7 @@ button, input, textarea {
 .rabbit-eye {
   width: 4px;
   height: 4px;
-  background: var(--lime);
+  background: var(--dark);
   border-radius: 50%;
   position: absolute;
   top: 18px;
@@ -1020,11 +1024,22 @@ button, input, textarea {
   width: 200px;
   height: 200px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(var(--lime-rgb), 0.08) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(10, 10, 10, 0.04) 0%, transparent 70%);
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+}
+
+.rabbit-ear-dot {
+  width: 8px;
+  height: 8px;
+  background: var(--lime);
+  border-radius: 50%;
+  position: absolute;
+  bottom: calc(50% + 86px);
+  left: calc(50% + 19px);
+  box-shadow: 0 0 10px rgba(212, 255, 0, 0.6);
 }
 
 .values-list {
@@ -1501,10 +1516,10 @@ button, input, textarea {
 <!-- Header -->
 <header class="header" role="banner">
   <a href="#inicio" class="header-logo" aria-label="White Rabbit - Inicio">
-    <svg width="28" height="38" viewBox="0 0 60 80" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:inline-block;vertical-align:middle;margin-right:8px;">
-      <ellipse cx="20" cy="28" rx="7" ry="26" stroke="currentColor" stroke-width="1.8" fill="none"/>
-      <ellipse cx="40" cy="28" rx="7" ry="26" stroke="currentColor" stroke-width="1.8" fill="none"/>
-      <circle cx="40" cy="2.5" r="2.8" fill="#D4FF00"/>
+    <svg width="34" height="44" viewBox="0 0 54 70" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:inline-block;vertical-align:middle;margin-right:8px;">
+      <ellipse cx="13" cy="32" rx="9" ry="30" stroke="currentColor" stroke-width="2.4" fill="none"/>
+      <ellipse cx="41" cy="32" rx="9" ry="30" stroke="currentColor" stroke-width="2.4" fill="none"/>
+      <circle cx="41" cy="2.5" r="4" fill="#D4FF00"/>
     </svg>White Rabbit</a>
   <nav class="header-nav" role="navigation" aria-label="Navegación principal">
     <a href="#inicio">Inicio</a>
@@ -1569,7 +1584,7 @@ button, input, textarea {
         <div class="icon-diamond"></div>
       </div>
       <h3>Software a medida con AI</h3>
-      <p>Diseñamos y construimos plataformas que integran inteligencia artificial desde la arquitectura. No es un feature más — es el núcleo.</p>
+      <p>Diseñamos y construimos plataformas que integran inteligencia artificial desde la arquitectura. No es un feature más: es el núcleo.</p>
     </div>
     <div class="service-card reveal-child" style="transition-delay: 0.1s">
       <div class="service-icon">
@@ -1695,13 +1710,14 @@ button, input, textarea {
   <div class="about-grid">
     <div class="about-text reveal-child">
       <p>White Rabbit nació de una convicción: la mayoría de las empresas tiene los datos para transformarse, pero no saben cómo activarlos. Nosotros sí.</p>
-      <p>Somos una consultora de software a medida con ADN AI-first. No adaptamos soluciones genéricas — diseñamos y construimos tecnología que se ajusta exactamente a lo que tu negocio necesita, con inteligencia artificial integrada desde la arquitectura.</p>
-      <p>Desde Buenos Aires para toda Latinoamérica, trabajamos con equipos que entienden que la tecnología bien aplicada no es un costo — es la inversión con mayor retorno que van a hacer.</p>
+      <p>Somos una consultora de software a medida con ADN AI-first. No adaptamos soluciones genéricas: diseñamos y construimos tecnología que se ajusta exactamente a lo que tu negocio necesita, con inteligencia artificial integrada desde la arquitectura.</p>
+      <p>Desde Patagonia para toda Latinoamérica, trabajamos con equipos que entienden que la tecnología bien aplicada no es un costo: es la inversión con mayor retorno que van a hacer.</p>
     </div>
     <div class="rabbit-art reveal-child" style="transition-delay: 0.15s" aria-label="White Rabbit - Ilustración minimalista">
       <div class="rabbit-glow"></div>
       <div class="rabbit-ear rabbit-ear-left"></div>
       <div class="rabbit-ear rabbit-ear-right"></div>
+      <div class="rabbit-ear-dot" aria-hidden="true"></div>
       <div class="rabbit-head">
         <div class="rabbit-eye rabbit-eye-left"></div>
         <div class="rabbit-eye rabbit-eye-right"></div>
@@ -1758,11 +1774,14 @@ button, input, textarea {
       <h3>Hablemos</h3>
       <div class="contact-detail">
         <div class="contact-detail-label">Email</div>
-        <div class="contact-detail-value"><a href="mailto:hola@whiterabbit.com.ar">hola@whiterabbit.com.ar</a></div>
+        <div class="contact-detail-value">
+          <a href="mailto:lucas@whiterabbit.com.ar">lucas@whiterabbit.com.ar</a><br>
+          <a href="mailto:hernan@whiterabbit.com.ar">hernan@whiterabbit.com.ar</a>
+        </div>
       </div>
       <div class="contact-detail">
         <div class="contact-detail-label">Ubicación</div>
-        <div class="contact-detail-value">Buenos Aires, Argentina</div>
+        <div class="contact-detail-value">Patagonia, Argentina</div>
       </div>
       <div class="contact-detail">
         <div class="contact-detail-label">Alcance</div>
