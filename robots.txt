@@ -1,0 +1,5 @@
+# White Rabbit — whiterabbit.com.ar
+User-agent: *
+Allow: /
+
+Sitemap: https://whiterabbit.com.ar/sitemap.xml
