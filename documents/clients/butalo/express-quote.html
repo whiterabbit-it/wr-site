@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style>
+<title>Presupuesto Express</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;700;800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: one dark "lago" stage with three lanes (customer, worker, operator) driven by a scene timeline; reference sections below. Bruma brand tokens. */
+:root {
+  --bg: #FAFAF8;
+  --surface: #FFFFFF;
+  --surface-muted: #F3F1EE;
+  --ink: #1A2332;
+  --ink-2: #5A6978;
+  --ink-3: #8D99A5;
+  --line: #E4DED6;
+  --glaciar: #3D8B8B;
+  --glaciar-strong: #2D6B6B;
+  --glaciar-tint: rgba(61,139,139,.12);
+  --lena: #C4754B;
+  --lena-strong: #A45F3A;
+  --lena-tint: rgba(196,117,75,.14);
+  --danger: #B54A3C;
+  --stage: #0D1B2A;
+  --stage-2: #142636;
+  --stage-3: #1B3044;
+  --stage-line: #243B52;
+  --stage-ink: #EDE8E2;
+  --stage-ink-2: #95A7B7;
+  --wa-in: #1B3044;
+  --wa-out: #2D6B6B;
+  --ok: #4DA3A3;
+  --warn: #D4895F;
+  --font-display: 'Sora', 'Segoe UI', system-ui, sans-serif;
+  --font-body: 'DM Sans', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0A1520; --surface: #112131; --surface-muted: #142636;
+    --ink: #EDE8E2; --ink-2: #A9B7C4; --ink-3: #7B8FA1; --line: #22384D;
+    --glaciar: #4DA3A3; --glaciar-strong: #6BBDBD; --glaciar-tint: rgba(77,163,163,.16);
+    --lena: #D4895F; --lena-strong: #E3A27D; --lena-tint: rgba(212,137,95,.16);
+    --danger: #E07A6B;
+    --stage: #07111B; --stage-2: #0F1E2D; --stage-3: #16293B; --stage-line: #22384D;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0A1520; --surface: #112131; --surface-muted: #142636;
+  --ink: #EDE8E2; --ink-2: #A9B7C4; --ink-3: #7B8FA1; --line: #22384D;
+  --glaciar: #4DA3A3; --glaciar-strong: #6BBDBD; --glaciar-tint: rgba(77,163,163,.16);
+  --lena: #D4895F; --lena-strong: #E3A27D; --lena-tint: rgba(212,137,95,.16);
+  --danger: #E07A6B;
+  --stage: #07111B; --stage-2: #0F1E2D; --stage-3: #16293B; --stage-line: #22384D;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink);
+  font-family: var(--font-body); font-size: 16px; line-height: 1.55;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 40px 64px;
+}
+.wrap { max-width: 1180px; margin: 0 auto; display: flex; flex-direction: column; gap: 56px; }
+h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; margin: 0; letter-spacing: -0.01em; }
+p { margin: 0; }
+.mono { font-family: var(--font-mono); font-size: .86em; }
+.eyebrow { font-size: 12px; text-transform: uppercase; letter-spacing: .12em; color: var(--glaciar-strong); font-weight: 700; }
+
+/* ---------- header ---------- */
+header { display: grid; gap: 14px; max-width: 760px; }
+header h1 { font-size: clamp(34px, 5vw, 52px); font-weight: 800; line-height: 1.05; }
+header h1 em { font-style: normal; color: var(--lena); }
+header .lede { font-size: 18px; color: var(--ink-2); max-width: 64ch; }
+.tags { display: flex; flex-wrap: wrap; gap: 8px; }
+.tag { font-size: 13px; padding: 3px 10px; border-radius: 999px; border: 1px solid var(--line); color: var(--ink-2); background: var(--surface); }
+.tag b { color: var(--ink); font-weight: 700; }
+a { color: var(--glaciar-strong); }
+
+/* ---------- player ---------- */
+.player { display: grid; gap: 0; border-radius: 18px; overflow: hidden; background: var(--stage); color: var(--stage-ink); box-shadow: 0 20px 50px -24px rgba(13,27,42,.55); }
+.caption { display: flex; flex-wrap: wrap; align-items: center; gap: 16px 24px; padding: 20px 24px; border-bottom: 1px solid var(--stage-line); }
+.caption-text { flex: 1 1 380px; min-width: 0; display: grid; gap: 4px; }
+.caption-text .step-n { font-family: var(--font-mono); font-size: 12px; color: var(--warn); letter-spacing: .06em; }
+.caption-text h2 { font-size: 21px; font-weight: 700; color: var(--stage-ink); }
+.caption-text p { color: var(--stage-ink-2); font-size: 15px; max-width: 78ch; }
+.controls { display: flex; gap: 8px; }
+.controls button {
+  font: 600 14px var(--font-body); color: var(--stage-ink); background: var(--stage-3);
+  border: 1px solid var(--stage-line); border-radius: 10px; padding: 8px 14px; cursor: pointer; min-width: 44px;
+}
+.controls button:hover { background: var(--stage-line); }
+.controls button:focus-visible, .steps button:focus-visible { outline: 2px solid var(--warn); outline-offset: 2px; }
+.controls .play { background: var(--wa-out); border-color: var(--wa-out); min-width: 92px; }
+.progress { height: 3px; background: var(--stage-line); }
+.progress i { display: block; height: 100%; width: 0; background: var(--warn); }
+
+.stage { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.25fr) minmax(0, 1.15fr); gap: 1px; background: var(--stage-line); }
+.lane { background: var(--stage-2); padding: 18px 18px 22px; display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.lane-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+.lane-head h3 { font-size: 13px; text-transform: uppercase; letter-spacing: .1em; color: var(--stage-ink-2); font-weight: 700; }
+.lane-head span { font-family: var(--font-mono); font-size: 11px; color: var(--stage-ink-2); opacity: .8; }
+.lane.active { background: var(--stage-3); }
+.lane.active .lane-head h3 { color: var(--stage-ink); }
+
+/* animated elements */
+.a { opacity: 0; transform: translateY(10px); visibility: hidden;
+     transition: opacity .45s ease, transform .45s ease, visibility 0s linear .45s; }
+.a.on { opacity: 1; transform: none; visibility: visible; transition-delay: var(--d, 0s), var(--d, 0s), 0s; }
+.stack { display: grid; }
+.stack > * { grid-area: 1 / 1; min-width: 0; align-self: start; }
+
+/* phone */
+.phone { background: var(--stage); border: 1px solid var(--stage-line); border-radius: 22px; padding: 14px 12px; display: flex; flex-direction: column; gap: 10px; min-height: 420px; }
+.phone-top { display: flex; align-items: center; gap: 10px; padding-bottom: 10px; border-bottom: 1px solid var(--stage-line); }
+.avatar { width: 30px; height: 30px; border-radius: 50%; background: var(--lena); display: grid; place-items: center; font: 700 13px var(--font-display); color: #1A2332; flex: none; }
+.phone-top b { font-size: 14px; display: block; line-height: 1.2; }
+.phone-top small { font-size: 12px; color: var(--stage-ink-2); }
+.bubble { max-width: 88%; padding: 8px 11px; border-radius: 12px; font-size: 14px; line-height: 1.4; }
+.bubble small { display: block; text-align: right; font-size: 10.5px; color: var(--stage-ink-2); margin-top: 2px; }
+.bubble.in { background: var(--wa-in); align-self: flex-start; border-top-left-radius: 3px; }
+.bubble.out { background: var(--wa-out); align-self: flex-end; border-top-right-radius: 3px; }
+.bubble.out small { color: #CFE5E5; }
+.doc { display: flex; gap: 10px; align-items: center; }
+.doc-icon { width: 34px; height: 42px; border-radius: 4px; background: #F3F1EE; position: relative; flex: none; display: grid; place-items: end center; padding-bottom: 4px; font: 700 9px var(--font-mono); color: var(--danger); }
+.doc-icon::before { content: ""; position: absolute; right: 0; top: 0; border: 6px solid transparent; border-right-color: var(--wa-out); border-top-color: var(--wa-out); }
+.doc b { font-size: 13.5px; display: block; }
+.doc span { font-size: 11.5px; color: #CFE5E5; }
+.typing { align-self: flex-start; display: flex; gap: 4px; padding: 10px 12px; background: var(--wa-in); border-radius: 12px; }
+.typing i { width: 6px; height: 6px; border-radius: 50%; background: var(--stage-ink-2); animation: blink 1.2s infinite; }
+.typing i:nth-child(2) { animation-delay: .2s; } .typing i:nth-child(3) { animation-delay: .4s; }
+.phone > .a:not(.on) { display: none; }
+.phone > .a.on { animation: rise .45s ease var(--d, 0s) both; }
+@keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+@keyframes blink { 0%, 80%, 100% { opacity: .25; } 40% { opacity: 1; } }
+
+/* engine */
+.card { background: var(--stage); border: 1px solid var(--stage-line); border-radius: 12px; padding: 14px; display: grid; gap: 10px; }
+.card-title { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; font-size: 13px; color: var(--stage-ink-2); }
+.card-title b { color: var(--stage-ink); font-family: var(--font-mono); font-size: 13px; font-weight: 600; }
+.check { display: grid; grid-template-columns: 22px 1fr auto; gap: 10px; align-items: center; font-size: 14px; }
+.check .dot { width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid var(--stage-line); display: grid; place-items: center; font-size: 12px; color: transparent; transition: all .3s ease var(--d, 0s); }
+.check .else { font-size: 12px; color: var(--stage-ink-2); }
+.check.on .dot { background: var(--ok); border-color: var(--ok); color: var(--stage); }
+.route { display: flex; align-items: center; gap: 8px; font: 600 13px var(--font-mono); color: var(--warn); padding-top: 4px; border-top: 1px dashed var(--stage-line); }
+.route::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--warn); box-shadow: 0 0 0 4px rgba(212,137,95,.25); }
+
+pre.json { margin: 0; font: 12.5px/1.55 var(--font-mono); color: var(--stage-ink); white-space: pre-wrap; overflow-x: auto; }
+.json .k { color: var(--stage-ink-2); } .json .s { color: #E3A27D; } .json .n { color: #6BBDBD; }
+
+.line-group { display: grid; gap: 6px; }
+.line-group > p { font-size: 13px; color: var(--stage-ink-2); }
+.line-group > p b { color: var(--stage-ink); }
+.cands { display: grid; gap: 5px; }
+.cand { display: grid; grid-template-columns: auto 1fr auto; gap: 8px; align-items: center; font-size: 12.5px; padding: 5px 8px; border-radius: 7px; border: 1px solid var(--stage-line); background: var(--stage-2); transition: opacity .4s, background .4s, border-color .4s; }
+.cand code { font-family: var(--font-mono); color: var(--stage-ink-2); font-size: 11.5px; }
+.cand em { font-style: normal; font-family: var(--font-mono); font-size: 11px; color: var(--stage-ink-2); }
+.cand span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cand.tie { background: rgba(212,137,95,.14); border-color: var(--warn); }
+.cand.tie code { color: var(--warn); }
+.cand.dim { opacity: .38; }
+.cand.tie.dim { background: var(--stage-2); border-color: var(--stage-line); }
+.cand.tie.dim code { color: var(--stage-ink-2); }
+.cand.pick { background: rgba(77,163,163,.18); border-color: var(--ok); }
+.cand.pick code { color: var(--ok); }
+.badges { display: flex; flex-wrap: wrap; gap: 6px; }
+.badge { font-size: 11.5px; padding: 3px 8px; border-radius: 999px; background: rgba(77,163,163,.16); color: #9ED3D3; border: 1px solid rgba(77,163,163,.35); }
+.badge.warn { background: rgba(212,137,95,.16); color: #EBB898; border-color: rgba(212,137,95,.4); }
+.idle { display: grid; place-items: center; text-align: center; gap: 6px; min-height: 160px; color: var(--stage-ink-2); font-size: 14px; border: 1px dashed var(--stage-line); border-radius: 12px; padding: 16px; }
+.idle b { color: var(--stage-ink); font-family: var(--font-display); font-size: 15px; }
+
+/* operator */
+.draft { background: #FAFAF8; color: #1A2332; border-radius: 12px; padding: 14px; display: grid; gap: 12px; }
+.draft-head { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; justify-content: space-between; }
+.draft-head b { font-family: var(--font-display); font-size: 15px; }
+.pill { font-size: 11.5px; font-weight: 700; padding: 3px 9px; border-radius: 999px; background: rgba(196,117,75,.14); color: #A45F3A; transition: background .4s, color .4s; }
+.pill.sent { background: rgba(61,139,139,.15); color: #2D6B6B; }
+.tbl-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 12.5px; font-variant-numeric: tabular-nums; }
+th { text-align: left; font-weight: 700; font-size: 10.5px; text-transform: uppercase; letter-spacing: .06em; color: #5A6978; padding: 4px 6px; border-bottom: 1px solid #D9D2C9; }
+td { padding: 6px; border-bottom: 1px solid #EDE8E2; vertical-align: top; }
+td.num, th.num { text-align: right; white-space: nowrap; }
+td code { font-family: var(--font-mono); font-size: 11px; color: #2D6B6B; }
+tfoot td { font-weight: 700; border-bottom: none; }
+.draft-meta { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12px; color: #5A6978; }
+.draft-actions { display: flex; gap: 8px; justify-content: flex-end; }
+.draft-actions span { font: 600 13px var(--font-body); padding: 7px 14px; border-radius: 9px; border: 1px solid #D9D2C9; color: #1A2332; }
+.draft-actions .approve { background: #3D8B8B; border-color: #3D8B8B; color: #fff; transition: transform .2s, box-shadow .3s; }
+.approve.pressed { transform: scale(.95); box-shadow: 0 0 0 5px rgba(61,139,139,.3); }
+.qnum { font: 600 12px var(--font-mono); color: #A45F3A; }
+.gate-row { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--stage-ink); }
+.gate-row i { width: 8px; height: 8px; border-radius: 50%; background: var(--ok); flex: none; }
+
+/* meters */
+.meters { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; background: var(--stage-line); border-top: 1px solid var(--stage-line); }
+.meter { background: var(--stage); padding: 14px 18px 16px; display: grid; gap: 8px; }
+.meter-top { display: flex; justify-content: space-between; gap: 8px; font-size: 12.5px; color: var(--stage-ink-2); }
+.meter-top b { color: var(--stage-ink); font-family: var(--font-mono); font-weight: 600; font-variant-numeric: tabular-nums; }
+.bar { position: relative; height: 8px; border-radius: 4px; background: var(--stage-3); }
+.bar i { position: absolute; inset: 0 auto 0 0; border-radius: 4px; background: var(--ok); width: 0; transition: width .8s ease; }
+.bar .mark { position: absolute; top: -3px; bottom: -3px; width: 2px; background: var(--warn); }
+.bar .mark.max { background: var(--danger); }
+.meter small { font-size: 11.5px; color: var(--stage-ink-2); }
+
+/* steps list */
+.steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.steps button {
+  width: 100%; height: 100%; text-align: left; cursor: pointer; display: grid; gap: 4px; align-content: start;
+  font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px;
+  transition: border-color .3s, background .3s;
+}
+.steps button:hover { border-color: var(--glaciar); }
+.steps .n { font: 600 12px var(--font-mono); color: var(--ink-3); }
+.steps b { font-family: var(--font-display); font-size: 15px; font-weight: 700; }
+.steps p { font-size: 13.5px; color: var(--ink-2); }
+.steps button[aria-current="step"] { border-color: var(--glaciar); background: var(--glaciar-tint); }
+.steps button[aria-current="step"] .n { color: var(--glaciar-strong); }
+
+/* sections */
+section { display: grid; gap: 20px; }
+.sec-head { display: grid; gap: 6px; max-width: 720px; }
+.sec-head h2 { font-size: 28px; font-weight: 800; }
+.sec-head p { color: var(--ink-2); }
+.grid3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.fail { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 16px; display: grid; gap: 8px; align-content: start; }
+.fail .when { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: var(--lena-strong); font-weight: 700; }
+.fail h3 { font-size: 16px; font-weight: 700; }
+.fail p { font-size: 14px; color: var(--ink-2); }
+.fail .then { font: 600 12px var(--font-mono); color: var(--glaciar-strong); }
+
+.rollout { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0; counter-reset: r; }
+.rollout li { position: relative; padding: 30px 14px 0 0; display: grid; gap: 4px; align-content: start; counter-increment: r; }
+.rollout li::before { content: counter(r); position: absolute; top: 0; left: 0; width: 22px; height: 22px; border-radius: 50%; background: var(--glaciar); color: var(--bg); font: 700 12px var(--font-mono); display: grid; place-items: center; z-index: 1; }
+.rollout li::after { content: ""; position: absolute; top: 10px; left: 22px; right: 0; height: 2px; background: var(--line); }
+.rollout li:last-child::after { display: none; }
+.rollout b { font-family: var(--font-display); font-size: 15px; }
+.rollout p { font-size: 13.5px; color: var(--ink-2); }
+.note { font-size: 13px; color: var(--ink-3); }
+
+.scope { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.scope > div { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; display: grid; gap: 8px; align-content: start; }
+.scope h3 { font-size: 16px; }
+.scope ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; font-size: 14px; color: var(--ink-2); }
+
+@media (max-width: 960px) {
+  .stage { grid-template-columns: 1fr; }
+  .phone { min-height: 0; }
+  .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .grid3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .rollout { grid-template-columns: 1fr; gap: 14px; }
+  .rollout li { padding: 0 0 0 34px; }
+  .rollout li::after { display: none; }
+}
+@media (max-width: 640px) {
+  .meters { grid-template-columns: 1fr; }
+  .steps, .grid3, .scope { grid-template-columns: 1fr; }
+  .caption { padding: 16px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition-duration: 0s !important; transition-delay: 0s !important; animation: none !important; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <span class="eyebrow">White Rabbit · Butalo</span>
+    <h1>Presupuesto Express: de un mensaje de WhatsApp a un <em>presupuesto en PDF</em></h1>
+    <p class="lede">Butalo, un corralón de materiales, recibe pedidos informales como "2 caños tigre 110, 5 codos". Esta funcionalidad permite que el worker convierta ese mensaje en un borrador con precios tomados de la propia lista de precios de la cuenta, que un operador lo apruebe y que se envíe como PDF. Se activa por cuenta, viene apagada por defecto y solo un superadmin puede encenderla.</p>
+    <div class="tags">
+      <span class="tag"><b>En proceso</b> motor de presupuestos dentro del worker</span>
+      <span class="tag"><b>~10.000</b> artículos en catálogo</span>
+      <span class="tag"><b>45 s</b> de tiempo límite del motor</span>
+      <span class="tag"><b>USD 60</b> de tope mensual por cuenta</span>
+    </div>
+  </header>
+
+  <div class="player" id="player">
+    <div class="caption">
+      <div class="caption-text" aria-live="polite">
+        <span class="step-n" id="capN">PASO 1 / 9</span>
+        <h2 id="capT">Llega un pedido</h2>
+        <p id="capB"></p>
+      </div>
+      <div class="controls">
+        <button type="button" id="prev" aria-label="Paso anterior">←</button>
+        <button type="button" id="play" class="play">Pausa</button>
+        <button type="button" id="next" aria-label="Paso siguiente">→</button>
+      </div>
+    </div>
+    <div class="progress"><i id="prog"></i></div>
+
+    <div class="stage" id="stage">
+      <!-- customer -->
+      <div class="lane" data-lane="customer">
+        <div class="lane-head"><h3>Cliente</h3><span>WhatsApp</span></div>
+        <div class="phone">
+          <div class="phone-top">
+            <div class="avatar">M</div>
+            <div><b>Martín · Obra Ruta 40</b><small>Cliente de Butalo</small></div>
+          </div>
+          <div class="bubble in a" data-in="0">Hola! me pasás precio de 2 caños tigre 110 y 5 codos?<small>09:12</small></div>
+          <div class="typing a" data-in="1" data-out="5"><i></i><i></i><i></i></div>
+          <div class="bubble out a" data-in="5">Para los caños Tigre 110, ¿los necesitás de 4 m o de 6 m?<small>09:12 ✓✓</small></div>
+          <div class="bubble in a" data-in="5" style="--d:1.4s">de 4 m<small>09:14</small></div>
+          <div class="typing a" data-in="6" data-out="8"><i></i><i></i><i></i></div>
+          <div class="bubble out a" data-in="8"><div class="doc"><div class="doc-icon">PDF</div><div><b>Presupuesto-0001.pdf</b><span>1 página · 210×297 mm</span></div></div><small>11:40 ✓✓</small></div>
+          <div class="bubble out a" data-in="8" style="--d:.5s">Adjunto presupuesto solicitado<small>11:40 ✓✓</small></div>
+          <div class="bubble out a" data-in="8" style="--d:1s">Con 10% de descuento por pago contado, el total queda en $ 43.605<small>11:40 ✓✓</small></div>
+        </div>
+      </div>
+
+      <!-- worker -->
+      <div class="lane" data-lane="worker">
+        <div class="lane-head"><h3>Worker</h3><span>motor de presupuestos</span></div>
+        <div class="stack">
+          <div class="idle a" data-in="0" data-out="1"><b>Esperando mensajes entrantes</b>Cada mensaje pasa primero por el circuito de entrada habitual.</div>
+
+          <div class="card a" data-in="1" data-out="2">
+            <div class="card-title">Controles de ruteo <b>entrada</b></div>
+            <div class="check" data-cls="1:on" style="--d:.2s"><span class="dot">✓</span><span>Flag de la cuenta <span class="mono">quote_express_enabled</span></span><span class="else">si no, flujo actual</span></div>
+            <div class="check" data-cls="1:on" style="--d:.7s"><span class="dot">✓</span><span>Solo texto, sin imagen ni documento</span><span class="else">si no, IA normal</span></div>
+            <div class="check" data-cls="1:on" style="--d:1.2s"><span class="dot">✓</span><span>Gasto mensual por debajo del tope</span><span class="else">si no, IA normal</span></div>
+            <div class="check" data-cls="1:on" style="--d:1.7s"><span class="dot">✓</span><span>Filtro léxico previo: parece un pedido</span><span class="else">si no, IA normal</span></div>
+            <div class="route a" data-in="1" style="--d:2.2s">encolar tarea quote.draft</div>
+          </div>
+
+          <div class="card a" data-in="2" data-out="3">
+            <div class="card-title">Operación de IA <b>quote_parse</b></div>
+            <pre class="json">{
+  <span class="k">"lines"</span>: [
+    { <span class="k">"qty"</span>: <span class="n">2</span>, <span class="k">"text"</span>: <span class="s">"caño tigre 110"</span> },
+    { <span class="k">"qty"</span>: <span class="n">5</span>, <span class="k">"text"</span>: <span class="s">"codo"</span> }
+  ]
+}</pre>
+            <div class="badges"><span class="badge">texto del cliente aislado como dato</span><span class="badge">salida validada contra esquema</span><span class="badge">costo registrado</span></div>
+          </div>
+
+          <div class="card a" data-in="3" data-out="6">
+            <div class="card-title">Búsqueda en catálogo <b>lista v3 · 10.000 artículos</b></div>
+            <div class="line-group">
+              <p><b>2 ×</b> "caño tigre 110"</p>
+              <div class="cands">
+                <div class="cand" data-cls="4:tie 5:pick"><code>TG-110-4M</code><span>Caño PVC Tigre 110 mm × 4 m</span><em>0,91</em></div>
+                <div class="cand" data-cls="4:tie 5:dim"><code>TG-110-6M</code><span>Caño PVC Tigre 110 mm × 6 m</span><em>0,84</em></div>
+                <div class="cand" data-cls="4:dim"><code>AW-110-4M</code><span>Caño PVC Awaduct 110 mm × 4 m</span><em>0,52</em></div>
+              </div>
+            </div>
+            <div class="line-group">
+              <p><b>5 ×</b> "codo" <span class="mono">(diámetro inferido del pedido)</span></p>
+              <div class="cands">
+                <div class="cand" data-cls="4:pick"><code>TG-C110-90</code><span>Codo PVC Tigre 110 mm 90°</span><em>0,77</em></div>
+                <div class="cand" data-cls="4:dim"><code>TG-C110-45</code><span>Codo PVC Tigre 110 mm 45°</span><em>0,74</em></div>
+              </div>
+            </div>
+            <div class="badges a" data-in="3" style="--d:.4s"><span class="badge">normalización + sinónimos</span><span class="badge">pg_trgm</span><span class="badge">texto completo</span></div>
+            <div class="badges a" data-in="4"><span class="badge">quote_select elige solo entre candidatos</span><span class="badge">sin precio 0</span><span class="badge">sin sustituciones</span><span class="badge warn">alerta: 45° queda como alternativa</span><span class="badge warn">4 m vs 6 m demasiado parejos: preguntar, no adivinar</span></div>
+            <div class="badges a" data-in="5" style="--d:1.6s"><span class="badge">aclaración 1 / 1 usada</span><span class="badge">cliente: "de 4 m" → TG-110-4M</span><span class="badge warn">sigue sin estar claro → needs_human</span></div>
+          </div>
+
+          <div class="card a" data-in="6">
+            <div class="card-title">Resultado de la tarea <b>quote.draft</b></div>
+            <div class="gate-row"><i></i>Borrador creado, sugerencia <span class="mono">kind: quote</span></div>
+            <div class="gate-row"><i></i>Anclado a la lista de precios v3</div>
+            <div class="gate-row"><i></i>Los reintentos nunca crean un segundo borrador</div>
+            <div class="gate-row a" data-in="7"><i></i>La aprobación vuelve a verificar la ventana de 24 h</div>
+            <div class="gate-row a" data-in="8"><i></i>Enviado en orden: PDF, texto de portada, descuento</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- operator -->
+      <div class="lane" data-lane="operator">
+        <div class="lane-head"><h3>Operador</h3><span>vista de conversación</span></div>
+        <div class="stack">
+          <div class="idle a" data-in="0" data-out="6"><b>Sin sugerencias pendientes</b>El operador no ve nada hasta que el motor genera un borrador.</div>
+          <div class="draft a" data-in="6">
+            <div class="draft-head">
+              <b>Borrador de presupuesto</b>
+              <span class="pill" id="pill">Pendiente de aprobación</span>
+            </div>
+            <div class="tbl-wrap">
+              <table>
+                <thead><tr><th>Artículo</th><th class="num">Cant.</th><th class="num">Unitario</th><th class="num">Subtotal</th></tr></thead>
+                <tbody>
+                  <tr><td><code>TG-110-4M</code><br>Caño PVC Tigre 110 × 4 m</td><td class="num">2</td><td class="num">$ 18.450</td><td class="num">$ 36.900</td></tr>
+                  <tr><td><code>TG-C110-90</code><br>Codo PVC Tigre 110 90°</td><td class="num">5</td><td class="num">$ 2.310</td><td class="num">$ 11.550</td></tr>
+                </tbody>
+                <tfoot><tr><td colspan="3">Total</td><td class="num">$ 48.450</td></tr></tfoot>
+              </table>
+            </div>
+            <div class="draft-meta">
+              <span>Lista de precios v3</span>
+              <span>Códigos editables: el artículo elegido o sus alternativas</span>
+              <span class="qnum a" data-in="7">Presupuesto N° 0001 asignado al aprobar</span>
+            </div>
+            <div class="draft-actions">
+              <span>Descartar</span>
+              <span class="approve" data-cls="7:pressed">Aprobar y enviar</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="meters">
+      <div class="meter">
+        <div class="meter-top"><span>Gasto mensual de IA</span><b id="spendT">USD 24,60 / 60</b></div>
+        <div class="bar"><i id="spendB"></i><span class="mark" style="left:80%"></span><span class="mark max" style="left:calc(100% - 2px)"></span></div>
+        <small>Una sola alerta al 80 %. Al 100 % los mensajes nuevos van al flujo normal.</small>
+      </div>
+      <div class="meter">
+        <div class="meter-top"><span>Tiempo límite del motor</span><b id="deadT">0 s / 45 s</b></div>
+        <div class="bar"><i id="deadB"></i></div>
+        <small>Pasados 45 s, el motor responde requiere_humano con las líneas que tenga.</small>
+      </div>
+      <div class="meter">
+        <div class="meter-top"><span>Ventana de 24 h de WhatsApp</span><b id="winT">abierta · 23 h 59 m</b></div>
+        <div class="bar"><i id="winB"></i></div>
+        <small>Si se cerró al momento de aprobar, no se envía nada.</small>
+      </div>
+    </div>
+  </div>
+
+  <ol class="steps" id="steps"></ol>
+
+  <section>
+    <div class="sec-head">
+      <span class="eyebrow">Alternativas</span>
+      <h2>Cuando algo no sale como estaba previsto</h2>
+      <p>El motor nunca deja a un cliente sin respuesta. Cualquier camino de falla termina en el flujo normal de IA, en una persona o en un borrador que queda en espera.</p>
+    </div>
+    <div class="grid3">
+      <div class="fail"><span class="when">Flag apagado</span><h3>Exactamente el comportamiento actual</h3><p>El motor no se ejecuta y las tablas de presupuestos no se leen. Apagar el flag descarta los borradores pendientes de esa cuenta.</p></div>
+      <div class="fail"><span class="when">Imagen o documento</span><h3>No es un pedido de texto</h3><p>Las ráfagas con una imagen o un documento saltean el motor y siguen por el flujo normal de IA.</p></div>
+      <div class="fail"><span class="when">El filtro previo descarta</span><h3>No parece un pedido</h3><p>Se deriva al flujo normal. La cobertura del filtro previo se mide sobre pedidos reales.</p></div>
+      <div class="fail"><span class="when">Falla el proveedor de IA</span><h3>Reintentar y, si no, derivar</h3><p>Los errores transitorios se reintentan. El último intento deriva al flujo normal y avisa a nuestro equipo, como máximo una vez por hora.</p></div>
+      <div class="fail"><span class="when">Sigue la duda</span><h3>Una pregunta y, si no, una persona</h3><p>Una sola ronda de aclaración. Si quedan dudas, o la ejecución supera los 45 s, el resultado es una sugerencia needs_human que no se puede enviar.</p></div>
+      <div class="fail"><span class="when">Ventana vencida</span><h3>Bloqueado al aprobar</h3><p>Se verifica en la API y otra vez en el worker. La aprobación se rechaza y el borrador queda pendiente con un aviso.</p></div>
+      <div class="fail"><span class="when">Gasto 80 % / 100 %</span><h3>Alerta y después tope</h3><p>Una alerta por cuenta y por mes, incluso con workers concurrentes. Al llegar al tope, los mensajes nuevos usan el flujo normal; los borradores existentes se pueden seguir aprobando.</p></div>
+      <div class="fail"><span class="when">El cliente vuelve a escribir</span><h3>Borrador descartado</h3><p>Un mensaje nuevo mientras hay un borrador pendiente lo descarta y registra el resultado en el mismo paso.</p></div>
+      <div class="fail"><span class="when">El PDF falla definitivamente</span><h3>Nada fuera de orden</h3><p>Los textos que siguen al PDF se marcan como fallidos sin enviarse, y el operador puede reintentar.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <span class="eyebrow">Alcance</span>
+      <h2>Qué incluye y qué no</h2>
+    </div>
+    <div class="scope">
+      <div>
+        <h3>En esta entrega</h3>
+        <ul>
+          <li>Flag y configuración, exclusivos de superadmin, con auditoría</li>
+          <li>Importación versionada de listas de precios (SpreadsheetML, CSV) con activación atómica y rollback; la activación se bloquea si se rechaza más del 2 % de las filas</li>
+          <li>Matching con IA: filtro previo, quote_parse, quote_select, resguardos, alertas, una ronda de aclaración</li>
+          <li>Borrador editable en modo sugerencia, con aprobación obligatoria</li>
+          <li>PDF A4 con paginación determinística, enviado por WhatsApp</li>
+          <li>Tope de gasto, retención de 90 días, banco de evaluación, pestaña "Presupuesto"</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Fuera de alcance</h3>
+        <ul>
+          <li>Plantillas de WhatsApp fuera de la ventana de 24 h</li>
+          <li>Líneas libres y cambios de precio desde el panel</li>
+          <li>Imágenes o PDFs del cliente enviados al motor</li>
+          <li>Activación por administrador de la cuenta o por conversación, un interruptor global de emergencia, importación XLSX</li>
+          <li>Un entorno remoto que no sea producción</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <span class="eyebrow">Despliegue</span>
+      <h2>Apagado hasta probarlo</h2>
+      <p>La funcionalidad llega a una cuenta real recién al final de esta secuencia.</p>
+    </div>
+    <ol class="rollout">
+      <li><b>Publicar apagado</b><p>El código llega a producción, deshabilitado a nivel de despliegue.</p></li>
+      <li><b>Habilitar el despliegue</b><p>Habilitado a nivel de despliegue; el flag sigue apagado para todas las cuentas.</p></li>
+      <li><b>Evaluación local</b><p>Lista de precios completa e IA real, en un banco de evaluación local.</p></li>
+      <li><b>Piloto interno</b><p>Solo artículos habilitados y un tope de gasto bajo. Importaciones limitadas a 500 filas fuera del entorno local.</p></li>
+      <li><b>Cuenta real</b><p>Después de cumplir los criterios de salida y con la confirmación por escrito de Butalo.</p></li>
+    </ol>
+    <p class="note">Los nombres de productos, códigos y precios de la animación son ejemplos ilustrativos, no el catálogo de Butalo. Revisión 1, 15/10/2026.</p>
+  </section>
+</div>
+
+<script>
+(() => {
+  const scenes = [
+    { t: 'Llega un pedido', lane: 'customer', s: 'Un cliente escribe un pedido informal por WhatsApp. Sin códigos, sin diámetros explícitos, con nombres de marcas locales.', dur: 3800 },
+    { t: 'Rutear el mensaje', lane: 'worker', s: 'El flag, el tipo de mensaje, el tope de gasto y un filtro léxico previo y barato deciden si corre el motor de presupuestos. Cualquier "no" manda el mensaje por el flujo normal de IA.', dur: 5200 },
+    { t: 'Interpretar el pedido', lane: 'worker', s: 'La operación quote_parse convierte el texto libre en líneas con cantidades. El texto del cliente se aísla como dato y se descarta cualquier salida que no respete el esquema.', dur: 4600 },
+    { t: 'Buscar en el catálogo', lane: 'worker', s: 'Cada línea se busca en la lista de precios activa con normalización, sinónimos del rubro y ranking por trigramas y texto completo. El resultado es una lista corta de candidatos por línea.', dur: 4600 },
+    { t: 'Elegir y resguardar', lane: 'worker', s: 'quote_select elige un código para cada línea que puede resolver. El diámetro del codo se infiere del caño de 110 mm del mismo pedido. El largo del caño es un empate real (4 m vs 6 m), así que la línea queda en espera de aclaración en vez de adivinarse. Los resguardos solo pueden endurecer el resultado: ningún código fuera de los candidatos, ningún precio 0, ningún reemplazo para un artículo faltante.', dur: 6000 },
+    { t: 'Preguntar una vez', lane: 'customer', s: 'Solo se pregunta por las líneas en duda, en una única ronda de aclaración. El cliente responde "de 4 m" y la línea se resuelve como TG-110-4M. Si la respuesta no lo resuelve, el resultado es una sugerencia needs_human que el operador no puede enviar.', dur: 5600 },
+    { t: 'Borrador para el operador', lane: 'operator', s: 'El worker guarda una sugerencia pendiente de tipo "quote". El operador solo puede cambiar una línea por el artículo elegido o por una de sus alternativas.', dur: 4600 },
+    { t: 'Aprobar', lane: 'operator', s: 'La aprobación es obligatoria. El número de presupuesto se asigna en este momento, sin saltos ni repeticiones, y se verifica la ventana de 24 h antes de enviar nada.', dur: 4200 },
+    { t: 'Enviar el presupuesto', lane: 'customer', s: 'El cliente recibe el PDF, después "Adjunto presupuesto solicitado" y después el total con descuento, si la cuenta tiene uno configurado.', dur: 6500 },
+  ];
+  const spend = [24.6, 24.6, 24.6, 24.62, 24.62, 24.63, 24.66, 24.66, 24.66];
+  const dead = [0, 0, 4, 9, 15, 6, 6, 6, 6];
+  const deadTxt = ['0 s / 45 s', '0 s / 45 s', '4 s / 45 s', '9 s / 45 s', '15 s / 45 s', 'ejecución 2 · 6 s / 45 s', 'ejecución 2 · 6 s / 45 s', 'ejecución 2 · 6 s / 45 s', 'ejecución 2 · 6 s / 45 s'];
+  const win = [1, 1, 1, 1, 1, 1, .91, .91, .91];
+  const winTxt = ['abierta · 23 h 59 m', 'abierta · 23 h 59 m', 'abierta · 23 h 59 m', 'abierta · 23 h 59 m', 'abierta · 23 h 58 m', 'reiniciada · 24 h 00 m', 'abierta · 21 h 34 m', 'abierta · 21 h 34 m', 'abierta · 21 h 34 m'];
+
+  const $ = id => document.getElementById(id);
+  const stage = $('player');
+  const ins = [...stage.querySelectorAll('[data-in]')];
+  const clsEls = [...stage.querySelectorAll('[data-cls]')];
+  const lanes = [...stage.querySelectorAll('[data-lane]')];
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  const list = $('steps');
+  scenes.forEach((sc, i) => {
+    const li = document.createElement('li');
+    li.innerHTML = `<button type="button"><span class="n">${String(i + 1).padStart(2, '0')}</span><b>${sc.t}</b><p>${sc.s}</p></button>`;
+    li.firstChild.addEventListener('click', () => { go(i); setPlaying(false); });
+    list.appendChild(li);
+  });
+  const stepBtns = [...list.querySelectorAll('button')];
+
+  let cur = 0, playing = !reduce, timer = null, start = 0, raf = null;
+
+  function render(i) {
+    ins.forEach(e => {
+      const a = +e.dataset.in, b = e.dataset.out ? +e.dataset.out : 99;
+      e.classList.toggle('on', i >= a && i < b);
+    });
+    clsEls.forEach(e => e.dataset.cls.split(' ').forEach(p => {
+      const [n, c] = p.split(':');
+      e.classList.toggle(c, i >= +n);
+    }));
+    lanes.forEach(l => l.classList.toggle('active', l.dataset.lane === scenes[i].lane));
+    $('pill').textContent = i >= 8 ? 'Enviado · N° 0001' : i >= 7 ? 'Enviando…' : 'Pendiente de aprobación';
+    $('pill').classList.toggle('sent', i >= 8);
+    $('capN').textContent = `PASO ${i + 1} / ${scenes.length}`;
+    $('capT').textContent = scenes[i].t;
+    $('capB').textContent = scenes[i].s;
+    $('spendT').textContent = `USD ${spend[i].toFixed(2).replace('.', ',')} / 60`;
+    $('spendB').style.width = (spend[i] / 60 * 100) + '%';
+    $('deadT').textContent = deadTxt[i];
+    $('deadB').style.width = (dead[i] / 45 * 100) + '%';
+    $('winT').textContent = winTxt[i];
+    $('winB').style.width = (win[i] * 100) + '%';
+    stepBtns.forEach((b, k) => k === i ? b.setAttribute('aria-current', 'step') : b.removeAttribute('aria-current'));
+  }
+
+  function tick() {
+    const p = Math.min(1, (performance.now() - start) / scenes[cur].dur);
+    $('prog').style.width = ((cur + p) / scenes.length * 100) + '%';
+    if (p < 1) { raf = requestAnimationFrame(tick); return; }
+    go(cur === scenes.length - 1 ? 0 : cur + 1);
+  }
+
+  function go(i) {
+    cur = (i + scenes.length) % scenes.length;
+    render(cur);
+    cancelAnimationFrame(raf);
+    $('prog').style.width = (cur / scenes.length * 100) + '%';
+    if (playing) { start = performance.now(); raf = requestAnimationFrame(tick); }
+  }
+
+  function setPlaying(v) {
+    playing = v;
+    $('play').textContent = v ? 'Pausa' : 'Reproducir';
+    cancelAnimationFrame(raf);
+    if (v) { start = performance.now(); raf = requestAnimationFrame(tick); }
+    else $('prog').style.width = ((cur + 1) / scenes.length * 100) + '%';
+  }
+
+  $('play').addEventListener('click', () => setPlaying(!playing));
+  $('next').addEventListener('click', () => { setPlaying(false); go(cur + 1); });
+  $('prev').addEventListener('click', () => { setPlaying(false); go(cur - 1); });
+
+  render(0);
+  setPlaying(playing);
+})();
+</script>
+</body>
+</html>
